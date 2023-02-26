@@ -1,5 +1,6 @@
 package com.huy.model.dto;
 
+import com.huy.model.ProdType;
 import com.huy.model.ProductAvatar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,8 @@ public class ProductCreateResDTO {
     private String description;
 
     private ProductAvatarDTO avatar;
+
+    private ProdType prodType;
 
     public ProductCreateResDTO(Long id, String title, BigDecimal price, String description, ProductAvatar productAvatar) {
         this.id = id;

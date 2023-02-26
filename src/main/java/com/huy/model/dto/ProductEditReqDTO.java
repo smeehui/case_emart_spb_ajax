@@ -1,8 +1,6 @@
 package com.huy.model.dto;
 
 import com.huy.model.ProdType;
-import com.huy.model.Product;
-import com.huy.model.ProductAvatar;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +9,7 @@ import lombok.Setter;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.math.BigDecimal;
 
 
@@ -18,14 +17,13 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ProductCreateReqDTO implements Validator {
+public class ProductEditReqDTO implements Validator {
 
     private Long id;
     private String title;
     private String price;
     private String description;
 
-    @NotNull(message = "Product image is required")
     private MultipartFile file;
 
     private String prodTypeStr;
@@ -34,16 +32,15 @@ public class ProductCreateReqDTO implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return ProductCreateReqDTO.class.isAssignableFrom(clazz);
+        return ProductEditReqDTO.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-        ProductCreateReqDTO productCreateReqDTO = (ProductCreateReqDTO) target;
-        String title = productCreateReqDTO.getTitle();
-        String priceStr = productCreateReqDTO.getPrice();
-        MultipartFile file = productCreateReqDTO.getFile();
-        String prodType = productCreateReqDTO.getProdTypeStr();
+        ProductEditReqDTO productEditReqDTO = (ProductEditReqDTO) target;
+        String title = productEditReqDTO.getTitle();
+        String priceStr = productEditReqDTO.getPrice();
+        String prodType = productEditReqDTO.getProdTypeStr();
 
         if (title==null||title.trim().equals("")) {
             errors.rejectValue("title", "title.empty","Product title is required");
@@ -61,9 +58,6 @@ public class ProductCreateReqDTO implements Validator {
             if (price.compareTo(minP) < 0 || price.compareTo(maxP) > 0) {
                 errors.rejectValue("price", "price.range", "Product price is from 100$ to 10000$");
             }
-        }
-        if (file == null) {
-            errors.rejectValue("file", "file.empty", "Product image is required");
         }
         if (prodType == null) {
             errors.rejectValue("prodTypeStr", "prodTypeStr.empty", "Product type is required");

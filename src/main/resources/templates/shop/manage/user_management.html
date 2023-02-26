@@ -30,7 +30,7 @@
                 <li>
                     <hr class="dropdown-divider"/>
                 </li>
-                <li><a class="dropdown-item" href="#!">Logout</a></li>
+                <li><a class="dropdown-item" href="/logout">Logout</a></li>
             </ul>
         </li>
     </ul>
@@ -133,14 +133,14 @@
                         <table id="userDataTable" class="table table-striped table-hover">
                             <thead>
                             <tr class="text-center">
-                                <th>#</th>
+                                <th class="text-end">#</th>
                                 <th class="text-center">Avatar</th>
-                                <th>Full name</th>
-                                <th>Username</th>
-                                <th>Address</th>
-                                <th>Phone</th>
-                                <th>Roles</th>
-                                <th>Action</th>
+                                <th class="text-center">Full name</th>
+                                <th class="text-center">Username</th>
+                                <th class="text-center">Address</th>
+                                <th class="text-end">Phone</th>
+                                <th class="text-end">Roles</th>
+                                <th class="text-center">Action</th>
                             </tr>
                             </thead>
                             <tbody id="userTbBody">
@@ -434,6 +434,32 @@
         </div>
     </div>
 </div>
+<!--<div class="modal fade" id="loadingModal"-->
+<!--     tabindex="-1"-->
+<!--     role="dialog">-->
+<!--    <div-->
+<!--            class="modal-dialog modal-sm modal-dialog-centered"-->
+<!--            role="document"-->
+<!--    >-->
+<!--        <p class="modal-content d-flex justify-content-center align-items-center m-auto" style="width: 30px; height: 30px; background: transparent; border: none">-->
+<!--            <i style="font-size: 5rem" class="fa-solid fa-spinner fa-spin-pulse"></i>-->
+<!--        </p>-->
+<!--    </div>-->
+<!--</div>-->
+<div aria-hidden="true"
+     aria-modal="true"
+     class="modal fade show"
+     id="loadingModal"
+     role="dialog"
+     style="display: none;background-color: #0000004d;"
+     tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <p class="modal-content d-flex justify-content-center align-items-center m-auto"
+           style="width: 30px; height: 30px; background: transparent; border: none">
+            <i style="font-size: 5rem;color: aliceblue" class="fa-solid fa-spinner fa-spin-pulse"></i>
+        </p>
+    </div>
+</div>
 <th:block th:replace="layout/script::data_table"/>
 
 <script src="/assets/js/data-table/datatables-jquery.js"></script>
@@ -451,7 +477,7 @@
                 findUserById: AppBase.DOMAIN_SPB_API + "/users",
                 createUser: AppBase.DOMAIN_SPB_API + "/users",
                 updateUserById: AppBase.DOMAIN_SPB_API + "/users/edit",
-                deleteUserById: AppBase.DOMAIN_SPB_API + "/users",
+                deleteUserById: AppBase.DOMAIN_SPB_API + "/users/delete",
                 createNewDeposit: AppBase.DOMAIN_SPB_API + "/deposits",
                 createNewTransfer: AppBase.DOMAIN_SPB_API + "/transfers",
             },
@@ -476,8 +502,7 @@
         page.elements.loadingIcon = $("#loadingIcon");
         page.elements.previewText = $(".previewText");
         page.elements.createUserConfirmBtn = $("#createUserConfirmBtn");
-
-
+        page.elements.userCreateErrorUl = $("#newUserModal .alert-danger")
 
 
         // page.elements.userFullNameEdit.val(fullName);
@@ -492,7 +517,6 @@
         page.elements.userTbBody = $("#userTbBody");
 
 
-        page.elements.userErrorUl = $("#newUserModal .alert-danger")
         page.elements.userFullNameEdit = $("#userFullNameEdit");
         page.elements.userEmailEdit = $("#userEmailEdit");
         page.elements.usernameEdit = $("#usernameEdit");
@@ -504,11 +528,14 @@
         page.elements.editUserForm = $("#editUserForm");
         page.elements.editUserConfirmBtn = $("#editUserConfirmBtn");
         page.elements.editUserModal = $("#editUserModal");
+        page.elements.userEditErrorUl = $("#editUserModal .alert-danger")
+
 
         page.elements.allFormsInModal = $(".modal form");
         page.elements.allModalsHavingForm = $(".modal:has(form)");
+        page.elements.loadingModal = $("#loadingModal");
 
-        //=============ADD EVENT HTML ELEMENT==============//
+        //=============EVENT HTML ELEMENT==============//
 
         page.commands.mainBtnClickEventHandler = () => {
             page.elements.showCreateUserBtn.on("click", () => {
@@ -517,22 +544,39 @@
             page.elements.createUserConfirmBtn.on("click", () => {
                 page.elements.createUserForm.trigger("submit");
             });
-            page.elements.editUserConfirmBtn = $("#editUserConfirmBtn").on("click",()=>{
-                console.log(1)
-                page.elements.editUserForm.trigger("submit");
-            })
             page.elements.editUserConfirmBtn.on("click", () => {
                 page.elements.editUserForm.trigger("submit");
             });
         };
 
         page.commands.addActionBtnsClickEvent = () => {
+            page.elements.prevTablePage = $("#userDataTable_next");
+            page.elements.nextTablePage = $("#userDataTable_previous");
+            page.elements.pageLinks = $(".page-link");
             page.elements.actionButtonEdits = $(".btn-edit");
             page.elements.actionButtonDeletes = $(".btn-delete");
             page.elements.actionButtonEdits.on("click", function () {
                 page.commands.editUserHandler($(this).data("id"));
             });
+            page.elements.actionButtonDeletes.on("click", function () {
+                page.commands.deleteUserHandler($(this).data("id"));
+            });
+
+
+            page.elements.nextTablePage.on("click", () => {
+                page.commands.addActionBtnsClickEvent();
+            });
+            page.elements.prevTablePage.on("click", () => {
+                page.commands.addActionBtnsClickEvent();
+            });
+            page.elements.pageLinks.on("click", () => {
+                page.commands.addActionBtnsClickEvent();
+            });
         };
+
+
+        //=========EVENT HANDLER===========//
+
         page.commands.editUserHandler = (id) => {
             page.loadData.findUserById(id).then((data) => {
                 currentUser = data;
@@ -540,60 +584,32 @@
             });
         };
 
-        page.commands.appendCurrentUserInfoToEditForm = (user) => {
-            let {fullName, username, address, phone, roles, userAvatar,email} = user;
-
-            page.elements.userFullNameEdit.val(fullName);
-            page.elements.userEmailEdit.val(email);
-            page.elements.userPhoneEdit.val(phone);
-            page.elements.userAddressEdit.val(address);
-            page.elements.usernameEdit.val(username);
-            page.elements.userRoleEdit.find(`option[value = ${roles[0].id}]`).attr("selected", true);
-            page.elements.imgPreviewEdit.attr("src", userAvatar.fileUrl).removeClass("d-none");
-            page.elements.previewText.addClass("d-none");
-            page.elements.editUserModal.modal("toggle")
-        };
-
-        page.commands.resetFormWhenModalIsClosed = () => {
-            page.elements.allModalsHavingForm.on("hidden.bs.modal", () => {
-                page.elements.allFormsInModal.each((i, el) => {
-                    el.reset();
-                    $(".modal .alert-danger").empty().addClass("d-none").removeClass("show");
+        page.commands.deleteUserHandler = (id) => {
+            page.loadData.findUserById(id).then(() => {
+                AppBase.SweetAlert.showDeleteConfirmDialog().then((result) => {
+                    if (result.isConfirmed) {
+                        page.commands.deleteUserById(id);
+                    }
                 });
             });
-        }
-
-        page.commands.onLoadImageCreate = () => {
-            page.elements.inputImage.on("change", function (e) {
-
-                page.elements.imgPreviewCre.load(() => {
-                    page.elements.loadingIcon.removeClass("d-none")
-                })
-                page.elements.imgPreviewCre.attr("src", URL.createObjectURL(e.target.files[0]));
-                page.elements.imgPreviewCre.removeClass("d-none").addClass("d-block")
-                page.elements.previewText.addClass("d-none")
-            })
-        }
-
-
-        page.commands.onLoadImageEdit = () => {
-            page.elements.inputImage.on("change", function (e) {
-
-                page.elements.imgPreviewCre.load(() => {
-                    page.elements.loadingIcon.removeClass("d-none")
-                })
-                page.elements.imgPreviewCre.attr("src", URL.createObjectURL(e.target.files[0]));
-                page.elements.imgPreviewCre.removeClass("d-none").addClass("d-block")
-                page.elements.previewText.addClass("d-none")
-            })
-        }
+        };
 
 
         page.commands.eventHandler = () => {
             page.commands.onLoadImageCreate();
+            page.commands.onLoadImageEdit();
             page.commands.mainBtnClickEventHandler();
             page.commands.resetFormWhenModalIsClosed();
         }
+
+        page.commands.removeActionBtnsClickEvents = () => {
+            page.elements.prevTablePage.off("click");
+            page.elements.nextTablePage.off("click");
+            page.elements.pageLinks.off("click");
+            page.elements.actionButtonEdits.off("click");
+            page.elements.actionButtonDeletes.off("click");
+        };
+
 
         //================GET DATA==================//
 
@@ -623,6 +639,9 @@
         //============DATABASE INTERACT==============//
 
         page.commands.createNewUser = () => {
+
+            page.commands.showLoadingModal();
+
             let fullName = page.elements.inputFullName.val();
             let phone = page.elements.inputPhone.val();
             let address = page.elements.inputAddress.val();
@@ -632,8 +651,6 @@
             let password = page.elements.inputPassword.val();
             let roles = [{id: page.elements.inputRole.val()}];
             let file = page.elements.inputImage[0].files[0] || null;
-
-            console.log(roles);
 
             let formData = new FormData();
 
@@ -656,7 +673,6 @@
                 data: formData,
             })
                 .done((data) => {
-                    console.log(data);
                     page.elements.tableSearch.val("").trigger("keyup")
                     let tr = page.commands.createTableRow(data);
                     page.elements.userTbBody.prepend(tr);
@@ -664,6 +680,8 @@
                     AppBase.SweetAlert.showSuccessAlert(
                         "New user is created successfully!",
                     );
+                    page.commands.removeActionBtnsClickEvents();
+                    page.commands.addActionBtnsClickEvent();
                 })
                 .fail((jqXHR) => {
                     switch (jqXHR.status) {
@@ -674,16 +692,21 @@
                             $.each(errors, (k, v) => {
                                 str += `<li>${v}</li>`;
                             })
-                            page.elements.userErrorUl.css("display", "unset").addClass("show").removeClass("d-none");
-                            page.elements.userErrorUl.empty().append(str);
+                            page.elements.userCreateErrorUl.css("display", "unset").addClass("show").removeClass("d-none");
+                            page.elements.userCreateErrorUl.empty().append(str);
                             break;
                         default:
                             console.log(jqXHR);
                     }
+                    page.elements.loadingModal.modal("hide")
+                })
+                .always(() => {
+                    page.commands.hideLoadingModal()
                 });
         };
 
         page.commands.updateUserById = ()=>{
+            page.commands.showLoadingModal();
             let id = currentUser.id;
             let fullName = page.elements.userFullNameEdit.val();
             let email = page.elements.userEmailEdit.val();
@@ -701,14 +724,13 @@
             formData.append("phone", phone);
             formData.append("address", address);
             formData.append("file", file);
-            formData.append("roles", roles);
-
+            formData.append("roles", JSON.stringify(roles));
             $.ajax({
                 contentType: false,
                 cache: false,
                 processData: false,
                 type: "PATCH",
-                url: page.urls.updateUserById +"/"+ id,
+                url: page.urls.updateUserById + "/" + id,
                 data: formData,
             })
                 .done((data) => {
@@ -718,30 +740,56 @@
                     AppBase.SweetAlert.showSuccessAlert(
                         "User is updated successfully!",
                     );
+                    page.commands.removeActionBtnsClickEvents();
+                    page.commands.addActionBtnsClickEvent();
                     page.elements.editUserModal.modal("toggle");
                     page.elements.tableSearch.val("").trigger("keyup")
                 })
                 .fail((jqXHR) => {
                     switch (jqXHR.status) {
+                        case 401:
                         case 400:
                             let errors = jqXHR.responseJSON;
-
                             let str = '';
                             $.each(errors, (k, v) => {
                                 str += `<li>${v}</li>`;
                             })
-                            page.elements.userErrorUl.css("display", "unset").addClass("show").removeClass("d-none");
-                            page.elements.userErrorUl.empty().append(str);
+                            page.elements.userEditErrorUl.css("display", "unset").addClass("show").removeClass("d-none");
+                            page.elements.userEditErrorUl.empty().append(str);
                             break;
                         default:
                             console.log(jqXHR);
                     }
                 })
-
+                .always(() => {
+                    page.commands.hideLoadingModal()
+                });
 
 
         }
 
+
+        page.commands.deleteUserById = (id) => {
+            page.commands.showLoadingModal()
+            $.ajax({
+                type: "DELETE",
+                url: page.urls.deleteUserById + `/${id}`
+            })
+                .done(() => {
+                    $(`.tr_${id}`).remove();
+                    AppBase.SweetAlert.showSuccessAlert(
+                        "User is deleted successfully!",
+                    );
+                })
+                .fail(() => {
+                    AppBase.SweetAlert.showErrorAlert(
+                        "Some thing went wrong, please try again later!",
+                    );
+                })
+                .always(() => {
+                    page.commands.hideLoadingModal()
+                })
+        };
 
         //===============RENDER============//
         page.commands.drawUserTableBody = (data) => {
@@ -753,23 +801,19 @@
             page.commands.initDtTB();
             page.elements.tableSearch = $("[type='search']");
             page.commands.addActionBtnsClickEvent();
-
-
         };
         page.commands.createTableRow = (item) => {
             let {id, fullName, username, address, phone, roles, userAvatar} = item;
             let imageUrl = AppBase.BASE_URL_CLOUD_IMAGE + '/' + AppBase.BASE_SCALE_IMAGE + '/' + userAvatar.fileFolder + '/' + userAvatar.fileName;
-
-
             return `<tr class="tr_${id}">
-                        <td>${id}</td>
+                        <td class="text-end">${id}</td>
                         <td class="text-center"><img src="${imageUrl}"></td>
-                        <td>${fullName}</td>
-                        <td>${username}</td>
-                        <td>${address}</td>
-                        <td>${phone}</td>
-                        <td>${roles.map(role => role.name)}</td>
-                        <td>
+                        <td class="text-center">${fullName || "Unknown"}</td>
+                        <td class="text-center">${username}</td>
+                        <td class="text-center">${address || "Unknown"}</td>
+                        <td class="text-end">${phone}</td>
+                        <td class="text-end">${roles.map(role => role.name.replace("ROLE_", ""))}</td>
+                        <td class="text-center">
                          <button class="btn btn-warning btn-sm btn-edit" data-id = ${id}>
                             <i class="fa-solid fa-pen-to-square"></i>
                          </button>
@@ -779,6 +823,58 @@
                         </td>
                     </tr>`;
         }
+
+        page.commands.showLoadingModal = () => {
+            page.elements.loadingModal.css("display", "block")
+        }
+        page.commands.hideLoadingModal = () => {
+            page.elements.loadingModal.css("display", "none")
+        }
+
+        page.commands.appendCurrentUserInfoToEditForm = (user) => {
+            let {fullName, username, address, phone, roles, userAvatar, email} = user;
+
+            page.elements.userFullNameEdit.val(fullName);
+            page.elements.userEmailEdit.val(email);
+            page.elements.userPhoneEdit.val(phone);
+            page.elements.userAddressEdit.val(address);
+            page.elements.usernameEdit.val(username);
+            page.elements.userRoleEdit.find(`option[value = ${roles[0].id}]`).attr("selected", true);
+            page.elements.imgPreviewEdit.attr("src", userAvatar.fileUrl).removeClass("d-none");
+            page.elements.previewText.addClass("d-none");
+            page.elements.editUserModal.modal("toggle")
+        };
+        page.commands.resetFormWhenModalIsClosed = () => {
+            page.elements.allModalsHavingForm.on("hidden.bs.modal", () => {
+                page.elements.allFormsInModal.each((i, el) => {
+                    el.reset();
+                    $(".modal .alert-danger").empty().addClass("d-none").removeClass("show");
+                });
+            });
+        }
+
+        page.commands.onLoadImageCreate = () => {
+            page.elements.inputImage.on("change", function (e) {
+
+                page.elements.imgPreviewCre.load(() => {
+                    page.elements.loadingIcon.removeClass("d-none")
+                })
+                page.elements.imgPreviewCre.attr("src", URL.createObjectURL(e.target.files[0]));
+                page.elements.imgPreviewCre.removeClass("d-none").addClass("d-block")
+                page.elements.previewText.addClass("d-none")
+            })
+        }
+        page.commands.onLoadImageEdit = () => {
+            page.elements.userImageEdit.on("change", function (e) {
+                page.elements.imgPreviewEdit.load(() => {
+                    page.elements.loadingIcon.removeClass("d-none")
+                })
+                page.elements.imgPreviewEdit.attr("src", URL.createObjectURL(e.target.files[0]));
+                page.elements.imgPreviewEdit.removeClass("d-none").addClass("d-block")
+                page.elements.previewText.addClass("d-none")
+            })
+        }
+
 
         page.commands.validationHandler = () => {
             let userValidationRules = {
@@ -907,13 +1003,6 @@
 
         page.commands.initDtTB = () => {
             $('#userDataTable').DataTable();
-
-            page.elements.nextTablePage = $("#userDataTable_previous").on("click",()=>{
-                page.commands.addActionBtnsClickEvent();
-            });
-            page.elements.prevTablePage = $("#userDataTable_next").on("click",()=>{
-                page.commands.addActionBtnsClickEvent();
-            });
         };
 
         return () => {

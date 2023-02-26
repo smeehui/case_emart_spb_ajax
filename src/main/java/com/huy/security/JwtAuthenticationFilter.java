@@ -1,5 +1,7 @@
 package com.huy.security;
 
+import com.huy.exception.DataInputException;
+import com.huy.model.User;
 import com.huy.service.jwt.JwtService;
 import com.huy.service.user.IUserService;
 import jakarta.servlet.FilterChain;
@@ -48,7 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         username = jwtService.extractUserName(jwt);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.loadUserByUsername(username);
-
             boolean isTokenValid = jwtService.isTokenValid(jwt, userDetails);
             if (isTokenValid) {
                 UsernamePasswordAuthenticationToken authenticationToken

@@ -33,7 +33,13 @@ public class Product extends BaseEntity {
     private ProductAvatar productAvatar;
 
 
+    @ManyToOne
+    @JoinColumn(name = "product_type_id",referencedColumnName = "id")
+    private ProdType productType;
+
+
     public ProductCreateResDTO toProductCreateResDTO() {
+
         return new ProductCreateResDTO()
                 .setId(id)
                 .setTitle(title)

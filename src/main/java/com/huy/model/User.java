@@ -59,7 +59,7 @@ public class User extends BaseEntity implements UserDetails {
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
         for (Role r :
                 roles) {
-            simpleGrantedAuthorities.add(new SimpleGrantedAuthority(r.getName()));
+            simpleGrantedAuthorities.add(new SimpleGrantedAuthority(r.getName().name()));
         }
         return simpleGrantedAuthorities;
     }

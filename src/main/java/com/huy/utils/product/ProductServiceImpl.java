@@ -2,14 +2,17 @@ package com.huy.utils.product;
 
 
 import com.huy.exception.DataInputException;
+import com.huy.model.ProdType;
 import com.huy.model.Product;
 import com.huy.model.ProductAvatar;
 import com.huy.model.dto.ProductCreateReqDTO;
 import com.huy.model.dto.ProductCreateResDTO;
 import com.huy.repository.ProductAvatarRepository;
 import com.huy.repository.ProductRepository;
+import com.huy.repository.ProductTypeRepository;
 import com.huy.service.upload.IUploadService;
 import com.huy.utils.UploadUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +40,7 @@ public class ProductServiceImpl implements IProductService{
 
     @Override
     public List<Product> findAll() {
-        return null;
+        return productRepository.findAll();
     }
 
     @Override
@@ -50,15 +53,26 @@ public class ProductServiceImpl implements IProductService{
         return productRepository.findById(id);
     }
 
+    @Autowired
+    ModelMapper modelMapper;
+    @Autowired
+    private ProductTypeRepository productTypeRepository;
+
     @Override
     public ProductCreateResDTO create(ProductCreateReqDTO productCreateReqDTO) {
 
         ProductAvatar productAvatar = new ProductAvatar();
         productAvatarRepository.save(productAvatar);
 
+        modelMapper.getConfiguration().setAmbiguityIgnored(true);
+        Product product = modelMapper.map(productCreateReqDTO, Product.class);
+
+
+
         uploadAndSaveProductImage(productCreateReqDTO, productAvatar);
 
-        Product product = productCreateReqDTO.toProduct(productAvatar);
+        product.setProductAvatar(productAvatar);
+
         product.setId(null);
         productRepository.save(product);
 

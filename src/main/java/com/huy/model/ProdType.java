@@ -1,29 +1,26 @@
 package com.huy.model;
 
-import com.huy.model.enums.ERole;
+
+import com.huy.model.enums.EProdType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Entity
-@Table(name = "roles")
+@Table(name = "product_types")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Role {
+public class ProdType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    @Column(name = "id", nullable = false)
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private ERole name;
-
-    @OneToMany(targetEntity = User.class, fetch = FetchType.EAGER)
-    private List<User> users;
+    private EProdType name;
 }

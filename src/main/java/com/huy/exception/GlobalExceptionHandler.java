@@ -84,4 +84,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
   }
+  @ExceptionHandler(UnauthorizedProcess.class)
+  public ResponseEntity<?> unauthorizedProcess(UnauthorizedProcess ex, WebRequest request) {
+    Map<String, String> body = new HashMap<>();
+
+    body.put("message", ex.getMessage());
+
+    return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+  }
 }

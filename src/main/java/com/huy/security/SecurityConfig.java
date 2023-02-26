@@ -6,6 +6,7 @@ import com.huy.service.user.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -67,14 +68,14 @@ public class SecurityConfig  {
                 .requestMatchers(
                         "/",
                         "/assets/**",
-                        "/api/**",
-                        "/users/**",
+                        "/api/auth/**",
                         "/shop",
-                        "/management/**",
                         "/login")
                 .permitAll()
-//                .requestMatchers("/api/**")
-//                .hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.GET,"/api/users/**")
+                .permitAll()
+                .requestMatchers("/management/**")
+                .hasAnyAuthority("ROLE_ADMIN","ROLE_MODERATOR")
                 .requestMatchers("/index")
                 .hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
                 .anyRequest()

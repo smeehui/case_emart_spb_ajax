@@ -2,6 +2,7 @@ package com.huy.controller.api;
 
 import com.huy.exception.DataInputException;
 import com.huy.exception.ResourceNotFoundException;
+import com.huy.model.User;
 import com.huy.model.dto.UserDTO;
 import com.huy.model.dto.UserRequestDTO;
 import com.huy.model.dto.UserResponseDTO;
@@ -44,9 +45,9 @@ public class UserAuthAPI {
     private RoleRepository roleRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO user) {
-        String username = user.getUsername();
-        String password = user.getPassword();
+    public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
+        String username = userDTO.getUsername();
+        String password = userDTO.getPassword();
         if (username.trim().equals("") || password.trim().equals("")) {
             throw new DataInputException("User name or password is empty");
         }
@@ -56,6 +57,8 @@ public class UserAuthAPI {
         } catch (Exception e) {
             throw new DataInputException("Username is not found");
         }
+        User user = (User) userDetails;
+        if (user.isDeleted()) throw new DataInputException("User is deactivated");
         String jwt = jwtService.generateToken(userDetails);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, password);
         Authentication authenticate;
@@ -64,7 +67,7 @@ public class UserAuthAPI {
         } catch (AuthenticationException e) {
             throw new ResourceNotFoundException("User name or password is not correct!");
         }
-        JwtResponse response = new JwtResponse (jwt,user.getId(),username,authenticate.getAuthorities());
+        JwtResponse response = new JwtResponse (jwt,userDTO.getId(),username,authenticate.getAuthorities());
 
         ResponseCookie springCookie = ResponseCookie.from("jwtToken", jwt)
                 .httpOnly(false)

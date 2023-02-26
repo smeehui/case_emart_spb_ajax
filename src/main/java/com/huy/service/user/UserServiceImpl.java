@@ -10,6 +10,7 @@ import com.huy.model.UserAvatar;
 import com.huy.model.dto.RoleDTO;
 import com.huy.model.dto.UserRequestDTO;
 import com.huy.model.dto.UserResponseDTO;
+import com.huy.repository.RoleRepository;
 import com.huy.repository.UserAvatarRepositpory;
 import com.huy.repository.UserRepository;
 import com.huy.service.upload.IUploadService;
@@ -23,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,6 +49,8 @@ public class UserServiceImpl implements IUserService{
 
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    private RoleRepository roleRepository;
 
 
     @Override
@@ -102,11 +102,15 @@ public class UserServiceImpl implements IUserService{
     @Override
     public void deleteById(Long id) {
 
+
+
     }
 
     @Override
     public void delete(User user) {
 
+        user.setDeleted(true);
+        save(user);
     }
 
     @Override
@@ -141,12 +145,12 @@ public class UserServiceImpl implements IUserService{
 
         user.setId(null);
         user.setRoles(roles);
-
         user.setUserAvatar(userAvatar);
-
         save(user);
 
-        return modelMapper.map(user, UserResponseDTO.class);
+        UserResponseDTO userResponseDTO = modelMapper.map(user, UserResponseDTO.class);
+
+        return userResponseDTO;
     }
 
     @Override
@@ -156,8 +160,6 @@ public class UserServiceImpl implements IUserService{
         user.setAddress(userRequestDTO.getAddress());
         user.setPhone(userRequestDTO.getPhone());
         user.setFullName(userRequestDTO.getFullName());
-
-
 
         UserAvatar userAvatar = user.getUserAvatar();
         MultipartFile file = userRequestDTO.getFile();
@@ -175,20 +177,42 @@ public class UserServiceImpl implements IUserService{
 
     }
 
+    @Override
+    public List<User> findAllByDeletedIsFalse() {
+        return userRepository.findAllByDeletedIsFalse();
+    }
+
+    @Override
+    public List<User> findAllByDeletedIsFalseAndUsernameNot(String username) {
+        return userRepository.findAllByDeletedIsFalseAndUsernameNot(username);
+    }
+
+    @Override
+    public  List<User> findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(String role,String username) {
+        return userRepository.findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(role,username);
+    }
+
     private Set<Role> getUserRole(UserRequestDTO userDTO) {
         String roleDTOs = userDTO.getRoles();
         if (roleDTOs == null) {
             throw new DataInputException("User roles is null");
         }
         ObjectMapper objectMapper = new ObjectMapper();
-        Set<RoleDTO> roleDTOArr;
+        Set<RoleDTO> roleDTOSet;
         try {
-            roleDTOArr = objectMapper.readValue(roleDTOs,  new TypeReference<Set<RoleDTO>>(){});
+            roleDTOSet = objectMapper.readValue(roleDTOs, new TypeReference<Set<RoleDTO>>() {});
         } catch (JsonProcessingException e) {
             throw new DataInputException("Role is invalid");
         }
-
-        return roleDTOArr.stream().map(roleDTO -> modelMapper.map(roleDTO, Role.class)).collect(Collectors.toSet());
+        Set<Role> completeRoles = new HashSet<>();
+        for (RoleDTO role : roleDTOSet) {
+            Optional<Role> roleOptional = roleRepository.findById(role.getId());
+            if (roleOptional.isEmpty()) {
+                throw new DataInputException("Role is invalid");
+            }
+            completeRoles.add(roleOptional.get());
+        }
+        return completeRoles;
     }
 
 }
