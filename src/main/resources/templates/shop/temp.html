@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<!--
+	ustora by freshdesignweb.com
+	Twitter: https://twitter.com/freshdesignweb
+	URL: https://www.freshdesignweb.com/ustora/
+-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="layout/head_link::header('E Mart')"/>
+</head>
+<body>
+
+<th:block th:replace="layout/site_header::header"/>
+<th:block th:replace="layout/site_header::site_brand"/>
+<th:block th:replace="layout/site_header::mainmeu"/>
+
+<!--Put content here-->
+
+<th:block th:replace="layout/site_footer::top"/>
+<th:block th:replace="layout/site_footer::bottom"/>
+
+<th:block th:replace="layout/script::all"/>
+</body>
+</html>

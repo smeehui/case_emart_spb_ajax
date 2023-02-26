@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="all">
+    <!-- Latest jQuery form server -->
+    <script src="https://code.jquery.com/jquery.min.js"></script>
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+            crossorigin="anonymous"
+    ></script>
+
+    <!-- jQuery sticky menu -->
+    <script src="/assets/js/owl.carousel.min.js"></script>
+    <script src="/assets/js/jquery.sticky.js"></script>
+
+    <!-- Slider -->
+    <script type="text/javascript" src="/assets/js/bxslider.min.js"></script>
+    <script type="text/javascript" src="/assets/js/script.slider.js"></script>
+
+
+    <!-- jQuery easing -->
+    <script src="/assets/js/jquery.easing.1.3.min.js"></script>
+
+
+    <!-- Main Script -->
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/sweetalert/sweetalert2.all.min.js"></script>
+    <script src="/assets/js/baseapp.js"></script>
+
+</th:block>
+
+<th:block th:fragment="data_table">
+    <script src="https://code.jquery.com/jquery.min.js"></script>
+    <script src="/assets/js/jquery/jquery.validate.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/js/bootstrap.min.js"
+            integrity="sha512-EKWWs1ZcA2ZY9lbLISPz8aGR2+L7JVYqBAYTq5AXgBkSjRSuQEGqWx8R1zAX16KdXPaCjOCaKE8MCpU0wcHlHA=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer">
+
+    </script>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', event => {
+
+            // Toggle the side navigation
+            const sidebarToggle = document.body.querySelector('#sidebarToggle');
+            if (sidebarToggle) {
+                // Uncomment Below to persist sidebar toggle between refreshes
+                // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
+                //     document.body.classList.toggle('sb-sidenav-toggled');
+                // }
+                sidebarToggle.addEventListener('click', event => {
+                    event.preventDefault();
+                    document.body.classList.toggle('sb-sidenav-toggled');
+                    localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
+                });
+            }
+
+        });
+    </script>
+    <script src="/assets/sweetalert/sweetalert2.all.min.js"></script>
+    <script src="/assets/js/baseapp.js"></script>
+</th:block>
+
+</html>

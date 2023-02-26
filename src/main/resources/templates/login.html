@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!--
+	ustora by freshdesignweb.com
+	Twitter: https://twitter.com/freshdesignweb
+	URL: https://www.freshdesignweb.com/ustora/
+-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="layout/head_link::header('E Mart login')"/>
+    <link rel="stylesheet" href="/assets/css/login.css">
+</head>
+<body>
+<th:block th:replace="layout/site_header::site_brand"/>
+
+<div class="row">
+    <div class="col-md-6 mx-auto p-0">
+        <form>
+            <div class="card">
+                <div class="login-box">
+                    <div class="login-snip">
+                        <input id="tab-1" type="radio" name="tab" class="sign-in" checked><label for="tab-1"
+                                                                                                 class="tab">Login</label>
+                        <input id="tab-2" type="radio" name="tab" class="sign-up"><label for="tab-2" class="tab">Sign
+                        Up</label>
+                        <div class="login-space">
+                            <div class="login">
+                                <div class="group">
+                                    <label for="loginUName" class="label">Username</label>
+                                    <input id="loginUName" name="username" type="text" class="input"
+                                           placeholder="Enter your username">
+                                </div>
+                                <div class="group">
+                                    <label for="loginUPassword" class="label">Password</label>
+                                    <input id="loginUPassword" name="password" type="password" class="input"
+                                           data-type="password" placeholder="Enter your password">
+                                </div>
+                                <div class="group">
+                                    <input id="check" type="checkbox" class="check" checked>
+                                    <label for="check"><span class="icon"></span> Keep me Signed in</label>
+                                </div>
+                                <div class="group">
+                                    <input type="button" id="signInBtn" class="button" value="Sign In">
+                                </div>
+                                <div class="hr"></div>
+                                <div class="foot">
+                                    <a href="#">Forgot Password?</a>
+                                </div>
+                            </div>
+                            <div class="sign-up-form">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="group">
+                                            <label for="usernameRe" class="label">Username</label>
+                                            <input id="usernameRe" name="username" type="text" class="input"
+                                                   placeholder="Enter username">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="group">
+                                            <label for="roleRe" class="label">Select role</label>
+                                            <select class="form-select" id="roleRe">
+                                                <option value="1">ADMIN</option>
+                                                <option value="2">USER</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="group">
+                                    <label for="passwordRe" class="label">Password</label>
+                                    <input id="passwordRe" type="password" name="password" class="input"
+                                           data-type="password"
+                                           placeholder="Create your password">
+                                </div>
+                                <div class="group">
+                                    <label for="re-password" class="label">Repeat Password</label>
+                                    <input id="re-password" type="password" class="input" data-type="password"
+                                           placeholder="Repeat your password">
+                                </div>
+                                <div class="group">
+                                    <label for="emailRe" class="label">Email Address</label>
+                                    <input id="emailRe" name="email" type="text" class="input"
+                                           placeholder="Enter your email address">
+                                </div>
+                                <div class="group">
+                                    <label for="phoneRe" class="label">Phone number</label>
+                                    <input id="phoneRe" name="phone" type="text" class="input"
+                                           placeholder="Enter your email address">
+                                </div>
+
+                                <div class="group">
+                                    <input type="button" id="signUpBtn" class="button" value="Sign Up">
+                                </div>
+                                <div class="hr"></div>
+                                <div class="foot">
+                                    <label for="tab-1">Already Member?</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="toast-container" style="position: absolute; top: 0; right: 0;">
+
+    </div>
+</div>
+<th:block th:replace="layout/site_footer::top"/>
+<th:block th:replace="layout/site_footer::bottom"/>
+<th:block th:replace="layout/script::all"/>
+<script>
+    function login() {
+
+        $("#signInBtn").on("click", () => {
+            let loginUName = $("#loginUName").val();
+            let loginPassword = $("#loginUPassword").val();
+            let user = {username: loginUName, password: loginPassword}
+            $.ajax({
+                headers: {
+                    accept: "application/json",
+                    "content-type": "application/json"
+                }, type: "POST",
+                url: "http://localhost:" + PORT + "/api/auth/login",
+                data: JSON.stringify(user)
+            }).done((data) => {
+                console.log(data.roles)
+                AppBase.SweetAlert.showSuccessAlert("Login successfully");
+                let id = setTimeout(() => {
+                    let [role] = data.roles
+                    switch (role.authority) {
+                        case "ROLE_ADMIN":
+                           window.location.href = "http://localhost:" + PORT + "/management/user"
+                            break;
+                        case "ROLE_MODERATOR":
+                            window.location.href = "http://localhost:" + PORT + "/management/product";
+                            break;
+                        default:
+                            window.location.href = "http://localhost:" + PORT + "/index";
+
+                    }
+                    return clearTimeout(id);
+                }, 2000);
+            }).fail((jqXHR) => {
+                let error;
+                switch (jqXHR.status) {
+                    case 400:
+                        error = jqXHR.responseJSON;
+                        AppBase.SweetAlert.showErrorAlert(error.message);
+                        break;
+                    case 404:
+                        error = jqXHR.responseJSON;
+                        AppBase.SweetAlert.showErrorAlert(error.message);
+                        break;
+                    default:
+                        AppBase.SweetAlert.showErrorAlert("Something went wrong, please try again later!");
+                }
+            })
+        })
+    }
+
+    function register() {
+        $("#signUpBtn").on("click", () => {
+            let username = $("#usernameRe").val();
+            let roles = [{id: $("#roleRe").val()}]
+            let password = $("#passwordRe").val();
+            let email = $("#emailRe").val();
+            let phone = $("#phoneRe").val();
+
+            let formData = new FormData();
+            formData.append("username", username)
+            formData.append("roles", JSON.stringify(roles));
+            formData.append("password", password)
+            formData.append("email", email)
+            formData.append("phone", phone)
+
+
+            $.ajax({
+                contentType: false,
+                cache: false,
+                processData: false,
+                type: "POST",
+                url: "http://localhost:" + PORT + "/api/auth/register",
+                data: formData
+            }).done(() => {
+                AppBase.SweetAlert.showSuccessAlert("New user is created successfully!")
+            }).fail((jqXHR) => {
+                let error = jqXHR.responseJSON;
+                console.log(error)
+                let toast = "";
+                $.each(error, (k, v) => {
+                    toast += `
+                            <div class="toast border border-danger" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header">
+                                    <strong class="me-auto text-danger">${k}</strong>
+                                    <small class="text-muted">just now</small>
+                                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body">
+                                   ${v}
+                                </div>
+                             </div>
+                            `
+                });
+                $(".toast-container").empty().append(toast);
+                $(".toast").toast({
+                    animation: true,
+                    autohide: true,
+                    delay: 3000
+                }).toast("show");
+            })
+        })
+    }
+
+    window.onload = () => {
+        console.log(123)
+        login();
+        register();
+    }
+</script>
+</body>
+</html>

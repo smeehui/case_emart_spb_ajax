@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<!--
+	ustora by freshdesignweb.com
+	Twitter: https://twitter.com/freshdesignweb
+	URL: https://www.freshdesignweb.com/ustora/
+-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="/assets/css/styles.css" rel="stylesheet"/>
+<!--    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet"/>-->
+    <th:block th:replace="layout/head_link::header('Management')"/>
+    <!--    <script src="/assets/js/font_awesome.js"></script>-->
+</head>
+<body class="sb-nav-fixed">
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+    <!-- Navbar Brand-->
+    <a class="navbar-brand ps-3" href="/">Start Bootstrap</a>
+    <!-- Sidebar Toggle-->
+    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
+            class="fas fa-bars"></i></button>
+    <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
+               aria-expanded="false">
+                <i class="fas fa-user fa-fw"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-start" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#!">Settings</a></li>
+                <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                <li>
+                    <hr class="dropdown-divider"/>
+                </li>
+                <li><a class="dropdown-item" href="#!">Logout</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav">
+        <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+            <div class="sb-sidenav-menu">
+                <div class="nav">
+                    <div class="sb-sidenav-menu-heading">Core</div>
+                    <a class="nav-link" href="index.html">
+                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        Dashboard
+                    </a>
+                    <div class="sb-sidenav-menu-heading">Interface</div>
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts"
+                       aria-expanded="false" aria-controls="collapseLayouts">
+                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                        Layouts
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="layout-static.html">Static Navigation</a>
+                            <a class="nav-link" href="layout-sidenav-light.html">Light Sidenav</a>
+                        </nav>
+                    </div>
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages"
+                       aria-expanded="false" aria-controls="collapsePages">
+                        <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                        Pages
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="collapsePages" aria-labelledby="headingTwo"
+                         data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                               data-bs-target="#pagesCollapseAuth" aria-expanded="false"
+                               aria-controls="pagesCollapseAuth">
+                                Authentication
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne"
+                                 data-bs-parent="#sidenavAccordionPages">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="login.html">Login</a>
+                                    <a class="nav-link" href="register.html">Register</a>
+                                    <a class="nav-link" href="password.html">Forgot Password</a>
+                                </nav>
+                            </div>
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                               data-bs-target="#pagesCollapseError" aria-expanded="false"
+                               aria-controls="pagesCollapseError">
+                                Error
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne"
+                                 data-bs-parent="#sidenavAccordionPages">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="401.html">401 Page</a>
+                                    <a class="nav-link" href="404.html">404 Page</a>
+                                    <a class="nav-link" href="500.html">500 Page</a>
+                                </nav>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="sb-sidenav-menu-heading">Addons</div>
+                    <a class="nav-link" href="charts.html">
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                        Charts
+                    </a>
+                    <a class="nav-link" href="tables.html">
+                        <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                        Tables
+                    </a>
+                </div>
+            </div>
+            <div class="sb-sidenav-footer">
+                <div class="small">Logged in as:</div>
+                Start Bootstrap
+            </div>
+        </nav>
+    </div>
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <div class="row text-center align-items-center">
+                    <div class="col-lg-10"><h1 class="mt-4 ">User management</h1></div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-primary m-auto" id="showCreateUserBtn">New user</button>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-table me-1"></i>
+                        All users
+                    </div>
+                    <div class="card-body">
+                        <table id="userDataTable" class="table table-striped table-hover">
+                            <thead>
+                            <tr class="text-center">
+                                <th>#</th>
+                                <th class="text-center">Avatar</th>
+                                <th>Full name</th>
+                                <th>Username</th>
+                                <th>Address</th>
+                                <th>Phone</th>
+                                <th>Roles</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody id="userTbBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="py-4 bg-light mt-auto">
+            <div class="container-fluid px-4">
+                <div class="d-flex align-items-center justify-content-between small">
+                    <div class="text-muted">Copyright &copy; Your Website 2022</div>
+                    <div>
+                        <a href="#">Privacy Policy</a>
+                        &middot;
+                        <a href="#">Terms &amp; Conditions</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+<div class="modal fade" id="newUserModal"
+     tabindex="-1"
+     role="dialog">
+    <div
+            class="modal-dialog modal-xl modal-dialog-centered"
+            role="document"
+    >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModalLabel">
+                    User information
+                </h5>
+                <button
+                        type="button"
+                        class="close btn-sm btn btn-outline-dark"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <ul class="alert alert-danger d-none px-5"></ul>
+            <form id="newUserForm" class="m-3">
+                <div class="mb-3 row">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label for="inputName" class="form-label"
+                            >Full name</label
+                            >
+                            <input
+                                    type="text"
+                                    class="form-control text-capitalize"
+                                    id="inputName"
+                                    name="fullName"
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputPhone" class="form-label">Phone</label>
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    id="inputPhone"
+                                    name="phone"
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputAddress" class="form-label"
+                            >Address</label
+                            >
+                            <input
+                                    type="text"
+                                    class="form-control text-capitalize"
+                                    id="inputAddress"
+                                    name="address"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="row mb-3">
+                            <div class="col-lg-6">
+                                <label for="inputUsername" class="form-label"
+                                >Username</label
+                                >
+                                <input
+                                        type="text"
+                                        class="form-control"
+                                        id="inputUsername"
+                                        name="username"
+                                />
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="inputRole" class="form-label"
+                                >Role</label
+                                >
+                                <select class="form-select text-center" name="role" id="inputRole">
+                                    <option value="1">Admin</option>
+                                    <option value="2">Moderator</option>
+                                    <option value="3">User</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputEmail" class="form-label"
+                            >Email</label
+                            >
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    id="inputEmail"
+                                    name="email"
+                            />
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="inputPassword" class="form-label"
+                                >Password</label
+                                >
+                                <input
+                                        type="text"
+                                        class="form-control"
+                                        id="inputPassword"
+                                        name="password"
+                                />
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="re-password" class="form-label"
+                                >Re-password</label
+                                >
+                                <input
+                                        type="text"
+                                        class="form-control"
+                                        id="re-password"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 d-flex text-center pointer">
+                        <input type="file" class="form-control d-none" accept="image/*" id="inputImage">
+                        <label for="inputImage"
+                               class="text-center d-flex align-items-center justify-content-center preview">
+                            <img width="250" height="250" class="d-none imgPreview" id="imgPreviewCre"/>
+                            <p class="previewText">Choose an image</p>
+                        </label>
+                    </div>
+                </div>
+                <button
+                        type="button"
+                        id="createUserConfirmBtn"
+                        class="btn btn-outline-primary px-5 float-end"
+                >
+                    Crate
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editUserModal"
+     tabindex="-1"
+     role="dialog">
+    <div
+            class="modal-dialog modal-xl modal-dialog-centered"
+            role="document"
+    >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">
+                    User information
+                </h5>
+                <button
+                        type="button"
+                        class="close btn-sm btn btn-outline-dark"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <ul class="alert alert-danger d-none px-5"></ul>
+            <form id="editUserForm" class="m-3">
+                <div class="mb-3 row">
+                    <div class="col-lg-6">
+                        <div class="mb-3 row">
+                            <div class="col-lg-6">
+                                <label for="userFullNameEdit" class="form-label"
+                                >Full name</label
+                                >
+                                <input
+                                        type="text"
+                                        class="form-control text-capitalize"
+                                        id="userFullNameEdit"
+                                        name="fullName"
+                                />
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="usernameEdit" class="form-label"
+                                >Username</label
+                                >
+                                <input
+                                        type="text"
+                                        class="form-control"
+                                        id="usernameEdit"
+                                        disabled
+                                />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <div class="mb-3 col-lg-6">
+                                <label for="userPhoneEdit" class="form-label"
+                                >Phone</label
+                                >
+                                <input
+                                        type="text"
+                                        class="form-control"
+                                        id="userPhoneEdit"
+                                        name="phone"
+                                />
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="userRoleEdit" class="form-label"
+                                >Role</label
+                                >
+                                <select
+                                        class="form-select text-center"
+                                        name="role"
+                                        id="userRoleEdit"
+                                >
+                                    <option value="1">Admin</option>
+                                    <option value="2">Moderator</option>
+                                    <option value="3">User</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="mb-3 col-lg-6">
+                                <label for="userEmailEdit" class="form-label"
+                                >Email</label
+                                >
+                                <input
+                                        type="text"
+                                        class="form-control"
+                                        id="userEmailEdit"
+                                        name="email"
+                                />
+                            </div>
+
+                            <div class="mb-3 col-lg-6">
+                                <label for="userAddressEdit" class="form-label"
+                                >Address</label
+                                >
+                                <input
+                                        type="text"
+                                        class="form-control text-capitalize"
+                                        id="userAddressEdit"
+                                        name="address"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-flex text-center pointer">
+                        <input
+                                type="file"
+                                class="form-control d-none"
+                                accept="image/*"
+                                id="userImageEdit"
+                        />
+                        <label
+                                for="userImageEdit"
+                                class="text-center d-flex align-items-center justify-content-center preview"
+                        >
+                            <img
+                                    width="250"
+                                    height="250"
+                                    class="d-none imgPreview"
+                                    id="imgPreviewEdit"
+                            />
+                            <p class="previewText">Choose an image</p>
+                        </label>
+                    </div>
+                </div>
+                <button
+                        type="button"
+                        id="editUserConfirmBtn"
+                        class="btn btn-outline-primary px-5 float-end"
+                >
+                    Save changes
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="layout/script::data_table"/>
+
+<script src="/assets/js/data-table/datatables-jquery.js"></script>
+<script src="/assets/js/data-table/datatable-bootstrap.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>-->
+<script>
+    function init() {
+        const page = {
+            urls: {
+                getAllUsers: AppBase.DOMAIN_SPB_API + "/users",
+                getAllUserNot:
+                    AppBase.DOMAIN_SPB_API + "/users/id_ne=",
+                getAllDeposits: AppBase.DOMAIN_SPB_API + "/deposits",
+                getAllTransfers: AppBase.DOMAIN_SPB_API + "/transfers",
+                findUserById: AppBase.DOMAIN_SPB_API + "/users",
+                createUser: AppBase.DOMAIN_SPB_API + "/users",
+                updateUserById: AppBase.DOMAIN_SPB_API + "/users/edit",
+                deleteUserById: AppBase.DOMAIN_SPB_API + "/users",
+                createNewDeposit: AppBase.DOMAIN_SPB_API + "/deposits",
+                createNewTransfer: AppBase.DOMAIN_SPB_API + "/transfers",
+            },
+            elements: {},
+            loadData: {},
+            commands: {},
+        };
+        let currentUser;
+
+        page.elements.showCreateUserBtn = $("#showCreateUserBtn");
+        page.elements.newUserModal = $("#newUserModal");
+        page.elements.createUserForm = $("#newUserForm");
+        page.elements.inputUsername = $("#inputUsername");
+        page.elements.inputRole = $("#inputRole");
+        page.elements.inputPassword = $("#inputPassword");
+        page.elements.inputEmail = $("#inputEmail");
+        page.elements.inputFullName = $("#inputName");
+        page.elements.inputPhone = $("#inputPhone");
+        page.elements.inputAddress = $("#inputAddress");
+        page.elements.inputImage = $("#inputImage");
+        page.elements.imgPreviewCre = $("#imgPreviewCre");
+        page.elements.loadingIcon = $("#loadingIcon");
+        page.elements.previewText = $(".previewText");
+        page.elements.createUserConfirmBtn = $("#createUserConfirmBtn");
+
+
+
+
+        // page.elements.userFullNameEdit.val(fullName);
+        // page.elements.userEmailEdit.val(email);
+        // page.elements.userPhoneEdit.val(phone);
+        // page.elements.userAddressEdit.val(address);
+        // page.elements.usernameEdit.val(username);
+        // page.elements.userRoleEdit.val(roles[0]);
+        // page.elements.userImageEdit.attr("src",userAvatar.fileUrl);
+
+
+        page.elements.userTbBody = $("#userTbBody");
+
+
+        page.elements.userErrorUl = $("#newUserModal .alert-danger")
+        page.elements.userFullNameEdit = $("#userFullNameEdit");
+        page.elements.userEmailEdit = $("#userEmailEdit");
+        page.elements.usernameEdit = $("#usernameEdit");
+        page.elements.userPhoneEdit = $("#userPhoneEdit");
+        page.elements.userAddressEdit = $("#userAddressEdit");
+        page.elements.imgPreviewEdit = $("#imgPreviewEdit");
+        page.elements.userImageEdit = $("#userImageEdit");
+        page.elements.userRoleEdit = $("#userRoleEdit");
+        page.elements.editUserForm = $("#editUserForm");
+        page.elements.editUserConfirmBtn = $("#editUserConfirmBtn");
+        page.elements.editUserModal = $("#editUserModal");
+
+        page.elements.allFormsInModal = $(".modal form");
+        page.elements.allModalsHavingForm = $(".modal:has(form)");
+
+        //=============ADD EVENT HTML ELEMENT==============//
+
+        page.commands.mainBtnClickEventHandler = () => {
+            page.elements.showCreateUserBtn.on("click", () => {
+                page.elements.newUserModal.modal("toggle");
+            });
+            page.elements.createUserConfirmBtn.on("click", () => {
+                page.elements.createUserForm.trigger("submit");
+            });
+            page.elements.editUserConfirmBtn = $("#editUserConfirmBtn").on("click",()=>{
+                console.log(1)
+                page.elements.editUserForm.trigger("submit");
+            })
+            page.elements.editUserConfirmBtn.on("click", () => {
+                page.elements.editUserForm.trigger("submit");
+            });
+        };
+
+        page.commands.addActionBtnsClickEvent = () => {
+            page.elements.actionButtonEdits = $(".btn-edit");
+            page.elements.actionButtonDeletes = $(".btn-delete");
+            page.elements.actionButtonEdits.on("click", function () {
+                page.commands.editUserHandler($(this).data("id"));
+            });
+        };
+        page.commands.editUserHandler = (id) => {
+            page.loadData.findUserById(id).then((data) => {
+                currentUser = data;
+                page.commands.appendCurrentUserInfoToEditForm(data);
+            });
+        };
+
+        page.commands.appendCurrentUserInfoToEditForm = (user) => {
+            let {fullName, username, address, phone, roles, userAvatar,email} = user;
+
+            page.elements.userFullNameEdit.val(fullName);
+            page.elements.userEmailEdit.val(email);
+            page.elements.userPhoneEdit.val(phone);
+            page.elements.userAddressEdit.val(address);
+            page.elements.usernameEdit.val(username);
+            page.elements.userRoleEdit.find(`option[value = ${roles[0].id}]`).attr("selected", true);
+            page.elements.imgPreviewEdit.attr("src", userAvatar.fileUrl).removeClass("d-none");
+            page.elements.previewText.addClass("d-none");
+            page.elements.editUserModal.modal("toggle")
+        };
+
+        page.commands.resetFormWhenModalIsClosed = () => {
+            page.elements.allModalsHavingForm.on("hidden.bs.modal", () => {
+                page.elements.allFormsInModal.each((i, el) => {
+                    el.reset();
+                    $(".modal .alert-danger").empty().addClass("d-none").removeClass("show");
+                });
+            });
+        }
+
+        page.commands.onLoadImageCreate = () => {
+            page.elements.inputImage.on("change", function (e) {
+
+                page.elements.imgPreviewCre.load(() => {
+                    page.elements.loadingIcon.removeClass("d-none")
+                })
+                page.elements.imgPreviewCre.attr("src", URL.createObjectURL(e.target.files[0]));
+                page.elements.imgPreviewCre.removeClass("d-none").addClass("d-block")
+                page.elements.previewText.addClass("d-none")
+            })
+        }
+
+
+        page.commands.onLoadImageEdit = () => {
+            page.elements.inputImage.on("change", function (e) {
+
+                page.elements.imgPreviewCre.load(() => {
+                    page.elements.loadingIcon.removeClass("d-none")
+                })
+                page.elements.imgPreviewCre.attr("src", URL.createObjectURL(e.target.files[0]));
+                page.elements.imgPreviewCre.removeClass("d-none").addClass("d-block")
+                page.elements.previewText.addClass("d-none")
+            })
+        }
+
+
+        page.commands.eventHandler = () => {
+            page.commands.onLoadImageCreate();
+            page.commands.mainBtnClickEventHandler();
+            page.commands.resetFormWhenModalIsClosed();
+        }
+
+        //================GET DATA==================//
+
+        page.loadData.findAllUser = () => {
+            $.ajax({
+                type: "GET",
+                url: page.urls.getAllUsers,
+            }).done((data) => {
+                page.commands.drawUserTableBody(data);
+            });
+        };
+
+        page.commands.loadData = () => {
+            page.loadData.findAllUser();
+        }
+
+        page.loadData.findUserById = (id) => {
+            return $.ajax({
+                type: "GET",
+                url: page.urls.findUserById + `/${id}`,
+            }).fail(() => {
+                AppBase.SweetAlert.showErrorAlert("User not found");
+            });
+        };
+
+
+        //============DATABASE INTERACT==============//
+
+        page.commands.createNewUser = () => {
+            let fullName = page.elements.inputFullName.val();
+            let phone = page.elements.inputPhone.val();
+            let address = page.elements.inputAddress.val();
+            let email = page.elements.inputEmail.val();
+
+            let username = page.elements.inputUsername.val();
+            let password = page.elements.inputPassword.val();
+            let roles = [{id: page.elements.inputRole.val()}];
+            let file = page.elements.inputImage[0].files[0] || null;
+
+            console.log(roles);
+
+            let formData = new FormData();
+
+            formData.append("fullName", fullName)
+            formData.append("phone", phone)
+            formData.append("address", address)
+            formData.append("email", email)
+            formData.append("username", username)
+            formData.append("password", password)
+            formData.append("roles", JSON.stringify(roles));
+            formData.append("file", file)
+
+
+            $.ajax({
+                contentType: false,
+                cache: false,
+                processData: false,
+                type: "POST",
+                url: page.urls.createUser,
+                data: formData,
+            })
+                .done((data) => {
+                    let tr = page.commands.createTableRow(data);
+                    page.elements.userTbBody.prepend(tr);
+                    page.elements.newUserModal.modal("toggle");
+                    AppBase.SweetAlert.showSuccessAlert(
+                        "New user is created successfully!",
+                    );
+                    page.elements.tableSearch.val("").trigger("keyup")
+                })
+                .fail((jqXHR) => {
+                    switch (jqXHR.status) {
+                        case 400:
+                            let errors = jqXHR.responseJSON;
+
+                            let str = '';
+                            $.each(errors, (k, v) => {
+                                str += `<li>${v}</li>`;
+                            })
+                            page.elements.userErrorUl.css("display", "unset").addClass("show").removeClass("d-none");
+                            page.elements.userErrorUl.empty().append(str);
+                            break;
+                        default:
+                            console.log(jqXHR);
+                    }
+                });
+        };
+
+        page.commands.updateUserById = ()=>{
+            let id = currentUser.id;
+            let fullName = page.elements.userFullNameEdit.val();
+            let email = page.elements.userEmailEdit.val();
+            let username = page.elements.usernameEdit.val();
+            let phone = page.elements.userPhoneEdit .val();
+            let address = page.elements.userAddressEdit.val();
+            let file = page.elements.userImageEdit[0].files[0] || null;
+            let roles = [{id:page.elements.userRoleEdit .val()}];
+
+            let formData = new FormData();
+
+            formData.append("fullName", fullName);
+            formData.append("email", email);
+            formData.append("username", username);
+            formData.append("phone", phone);
+            formData.append("address", address);
+            formData.append("file", file);
+            formData.append("roles", roles);
+
+            $.ajax({
+                contentType: false,
+                cache: false,
+                processData: false,
+                type: "PATCH",
+                url: page.urls.updateUserById +"/"+ id,
+                data: formData,
+            })
+                .done((data) => {
+                    let tr = page.commands.createTableRow(data);
+                    $(".tr_" + data.id).replaceWith(tr);
+
+                    page.elements.newUserModal.modal("toggle");
+                    AppBase.SweetAlert.showSuccessAlert(
+                        "User is updated successfully!",
+                    );
+                    page.elements.tableSearch.val("").trigger("keyup")
+                })
+                .fail((jqXHR) => {
+                    switch (jqXHR.status) {
+                        case 400:
+                            let errors = jqXHR.responseJSON;
+
+                            let str = '';
+                            $.each(errors, (k, v) => {
+                                str += `<li>${v}</li>`;
+                            })
+                            page.elements.userErrorUl.css("display", "unset").addClass("show").removeClass("d-none");
+                            page.elements.userErrorUl.empty().append(str);
+                            break;
+                        default:
+                            console.log(jqXHR);
+                    }
+                })
+
+
+
+        }
+
+
+        //===============RENDER============//
+        page.commands.drawUserTableBody = (data) => {
+            page.elements.userTbBody.empty();
+            $.each(data, (i, item) => {
+                let rowStr = page.commands.createTableRow(item);
+                page.elements.userTbBody.prepend(rowStr);
+            });
+            page.commands.initDtTB();
+            page.elements.tableSearch = $("[type='search']");
+            page.commands.addActionBtnsClickEvent();
+
+
+        };
+        page.commands.createTableRow = (item) => {
+            let {id, fullName, username, address, phone, roles, userAvatar} = item;
+            let imageUrl = AppBase.BASE_URL_CLOUD_IMAGE + '/' + AppBase.BASE_SCALE_IMAGE + '/' + userAvatar.fileFolder + '/' + userAvatar.fileName;
+
+            return `<tr class="tr_${id}">
+                        <td>${id}</td>
+                        <td class="text-center"><img src="${imageUrl}"></td>
+                        <td>${fullName}</td>
+                        <td>${username}</td>
+                        <td>${address}</td>
+                        <td>${phone}</td>
+                        <td>${roles.map(role => role.name)}</td>
+                        <td>
+                         <button class="btn btn-warning btn-sm btn-edit" data-id = ${id}>
+                            <i class="fa-solid fa-pen-to-square"></i>
+                         </button>
+                         <button class="btn btn-danger btn-sm btn-delete" data-id = ${id}>
+                          <i class="fa-solid fa-circle-xmark"></i>
+                         </button>
+                        </td>
+                    </tr>`;
+        }
+
+        page.commands.validationHandler = () => {
+            let userValidationRules = {
+                email: {
+                    required: true,
+                    email: true,
+                },
+                fullName: {
+                    required: true,
+                    minlength: 5,
+                    maxlength: 40,
+                },
+                phone: {
+                    required: true,
+                },
+                address: {
+                    required: true,
+                    minlength: 5,
+                },
+                username: {
+                    required: true,
+                    minlength: 4,
+                },
+                password: {
+                    required: true,
+                    minlength: 4,
+                },
+                role: {
+                    required: true,
+                    number: true,
+                },
+            };
+            let userValidationMessages = {
+                fullName: {
+                    required: "Full name is required",
+                    minlength: "Min character of full name is ${0}",
+                    maxlength: "Max character of full name is ${0}",
+                },
+                email: {
+                    required: "Email is required",
+                    email: "Email is not valid",
+                },
+                phone: {
+                    required: "Phone is required",
+                },
+                address: {
+                    required: "Address is require",
+                    minlength: "Min character of address is ${0}",
+                },
+                username: {
+                    required: "Username is require",
+                    minlength: "Min character of username is ${0}",
+                },
+                password: {
+                    required: "Password is require",
+                    minlength: "Min character of password is ${4}",
+                },
+                role: {
+                    required: "Role is required",
+                    number: "Role is not valid",
+                },
+            };
+
+            $.validator.methods.email = function (value, element) {
+                return (
+                    this.optional(element) || /[a-z]+@[a-z]+\.[a-z]{2,}/.test(value)
+                );
+            };
+            $.validator.setDefaults({errorElement: "li"});
+
+            page.elements.createUserForm.validate({
+                rules: userValidationRules,
+
+                messages: userValidationMessages,
+
+                errorLabelContainer: "#newUserModal .alert-danger",
+                errorPlacement: function (error, element) {
+                    console.log(element);
+                    error.appendTo("#newUserModal .alert-danger");
+                },
+                showErrors: function (errorMap, errorList) {
+                    if (this.numberOfInvalids() > 0) {
+                        $("#newUserModal .alert-danger")
+                            .removeClass("d-none")
+                            .addClass("show");
+                    } else {
+                        $("#newUserModal .alert-danger")
+                            .removeClass("show")
+                            .addClass("d-none")
+                            .empty();
+                    }
+                    this.defaultShowErrors();
+                },
+                submitHandler: function () {
+                    page.commands.createNewUser();
+                },
+            });
+            page.elements.editUserForm.validate({
+                rules: userValidationRules,
+
+                messages: userValidationMessages,
+
+                errorLabelContainer: "#editUserModal .alert-danger",
+                errorPlacement: function (error, element) {
+                    console.log(element);
+                    error.appendTo("#editUserModal .alert-danger");
+                },
+                showErrors: function (errorMap, errorList) {
+                    if (this.numberOfInvalids() > 0) {
+                        $("#editUserModal .alert-danger")
+                            .removeClass("d-none")
+                            .addClass("show");
+                    } else {
+                        $("#editUserModal .alert-danger")
+                            .removeClass("show")
+                            .addClass("d-none")
+                            .empty();
+                    }
+                    this.defaultShowErrors();
+                },
+                submitHandler: function () {
+                    page.commands.updateUserById();
+                },
+            });
+        };
+
+        page.commands.initDtTB = () => {
+            $('#userDataTable').DataTable();
+
+            page.elements.nextTablePage = $("#userDataTable_previous").on("click",()=>{
+                page.commands.addActionBtnsClickEvent();
+            });
+            page.elements.prevTablePage = $("#userDataTable_next").on("click",()=>{
+                page.commands.addActionBtnsClickEvent();
+            });
+        };
+
+        return () => {
+            page.commands.loadData()
+            page.commands.validationHandler();
+            page.commands.eventHandler();
+        }
+    }
+
+    $(() => {
+        console.log(0)
+        let App = init();
+        App();
+    })
+</script>
+</body>
+</html>
