@@ -47,7 +47,7 @@ public class UserAuthAPI {
     public ResponseEntity<?> login(@RequestBody UserDTO user) {
         String username = user.getUsername();
         String password = user.getPassword();
-        if (username.trim() == "" || password.trim() == "") {
+        if (username.trim().equals("") || password.trim().equals("")) {
             throw new DataInputException("User name or password is empty");
         }
         UserDetails userDetails;

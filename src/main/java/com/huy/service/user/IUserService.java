@@ -15,5 +15,5 @@ public interface IUserService extends UserDetailsService, IGeneralService<User> 
 
     UserResponseDTO create(UserRequestDTO userRequestDTO);
 
-    void update(UserRequestDTO userRequestDTO,User user);
+    UserResponseDTO update(UserRequestDTO userRequestDTO, User user);
 }

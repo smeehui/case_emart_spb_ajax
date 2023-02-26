@@ -150,11 +150,14 @@ public class UserServiceImpl implements IUserService{
     }
 
     @Override
-    public void update(UserRequestDTO userRequestDTO, User user) {
+    public UserResponseDTO update(UserRequestDTO userRequestDTO, User user) {
 
         user.setEmail(userRequestDTO.getEmail());
         user.setAddress(userRequestDTO.getAddress());
         user.setPhone(userRequestDTO.getPhone());
+        user.setFullName(userRequestDTO.getFullName());
+
+
 
         UserAvatar userAvatar = user.getUserAvatar();
         MultipartFile file = userRequestDTO.getFile();
@@ -162,6 +165,13 @@ public class UserServiceImpl implements IUserService{
         if (file == null) {
             userRepository.save(user);
         } else uploadAndSaveUserAvatar(userRequestDTO, userAvatar);
+
+
+        UserResponseDTO userResponseDTO = modelMapper.map(user, UserResponseDTO.class);
+
+        userResponseDTO.setRoles(user.getRoles().stream().map(role -> modelMapper.map(role, RoleDTO.class)).collect(Collectors.toSet()));
+
+        return userResponseDTO;
 
     }
 

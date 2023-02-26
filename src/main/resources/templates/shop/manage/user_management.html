@@ -656,13 +656,14 @@
                 data: formData,
             })
                 .done((data) => {
+                    console.log(data);
+                    page.elements.tableSearch.val("").trigger("keyup")
                     let tr = page.commands.createTableRow(data);
                     page.elements.userTbBody.prepend(tr);
                     page.elements.newUserModal.modal("toggle");
                     AppBase.SweetAlert.showSuccessAlert(
                         "New user is created successfully!",
                     );
-                    page.elements.tableSearch.val("").trigger("keyup")
                 })
                 .fail((jqXHR) => {
                     switch (jqXHR.status) {
@@ -714,10 +715,10 @@
                     let tr = page.commands.createTableRow(data);
                     $(".tr_" + data.id).replaceWith(tr);
 
-                    page.elements.newUserModal.modal("toggle");
                     AppBase.SweetAlert.showSuccessAlert(
                         "User is updated successfully!",
                     );
+                    page.elements.editUserModal.modal("toggle");
                     page.elements.tableSearch.val("").trigger("keyup")
                 })
                 .fail((jqXHR) => {
@@ -758,6 +759,7 @@
         page.commands.createTableRow = (item) => {
             let {id, fullName, username, address, phone, roles, userAvatar} = item;
             let imageUrl = AppBase.BASE_URL_CLOUD_IMAGE + '/' + AppBase.BASE_SCALE_IMAGE + '/' + userAvatar.fileFolder + '/' + userAvatar.fileName;
+
 
             return `<tr class="tr_${id}">
                         <td>${id}</td>

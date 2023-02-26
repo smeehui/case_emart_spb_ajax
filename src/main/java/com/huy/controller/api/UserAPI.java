@@ -99,9 +99,9 @@ public class UserAPI {
             }
         }
 
-        userService.update(userRequestDTO,user);
+        UserResponseDTO userResponseDTO = userService.update(userRequestDTO,user);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(userResponseDTO,HttpStatus.OK);
     }
 
     private Set<Role> getUserRole(UserRequestDTO userDTO) {
