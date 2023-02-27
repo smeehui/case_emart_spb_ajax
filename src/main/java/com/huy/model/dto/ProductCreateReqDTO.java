@@ -1,8 +1,10 @@
 package com.huy.model.dto;
 
+import com.huy.model.ProdCategory;
 import com.huy.model.ProdType;
 import com.huy.model.Product;
 import com.huy.model.ProductAvatar;
+import com.huy.model.enums.EProdCategory;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +34,10 @@ public class ProductCreateReqDTO implements Validator {
 
     private ProdType prodType;
 
+    private String prodCategoryStr;
+
+    private ProdCategory prodCategory;
+
     @Override
     public boolean supports(Class<?> clazz) {
         return ProductCreateReqDTO.class.isAssignableFrom(clazz);
@@ -44,6 +50,7 @@ public class ProductCreateReqDTO implements Validator {
         String priceStr = productCreateReqDTO.getPrice();
         MultipartFile file = productCreateReqDTO.getFile();
         String prodType = productCreateReqDTO.getProdTypeStr();
+        String prodCategory = productCreateReqDTO.getProdCategoryStr();
 
         if (title==null||title.trim().equals("")) {
             errors.rejectValue("title", "title.empty","Product title is required");
@@ -65,13 +72,24 @@ public class ProductCreateReqDTO implements Validator {
         if (file == null) {
             errors.rejectValue("file", "file.empty", "Product image is required");
         }
-        if (prodType == null) {
+        if (prodType == null||prodType.trim().equals("")) {
             errors.rejectValue("prodTypeStr", "prodTypeStr.empty", "Product type is required");
         }else {
             if (prodType.trim().equals("")) {
                 errors.rejectValue("prodTypeStr", "prodTypeStr.empty", "Product type is required");
             } else if (!prodType.matches("[0-9]")) {
                 errors.rejectValue("prodTypeStr", "prodTypeStr.format", "Product type is invalid");
+            }
+        }
+
+        if (prodCategory == null||prodCategory.trim().equals("")) {
+            errors.rejectValue("prodCategoryStr", "prodTypeStr.empty", "Product category is required");
+        }else{
+            try {
+               EProdCategory.valueOf(prodCategory);
+            } catch (Exception e) {
+                e.printStackTrace();
+                errors.rejectValue("prodCategoryStr", "prodTypeStr.format", "Product category is not valid");
             }
         }
 

@@ -1,6 +1,7 @@
 package com.huy.model;
 
-import com.huy.model.enums.ERole;
+
+import com.huy.model.enums.EProdCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,17 +11,22 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "product_categories")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Role {
+public class ProdCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    @Column(name = "id", nullable = false)
+    private Long id;
+
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    private ERole name;
+    private EProdCategory name;
+
+    @OneToMany(mappedBy = "prodCategory")
+    private List<Product> products;
+
 }

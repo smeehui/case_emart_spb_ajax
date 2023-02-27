@@ -14,10 +14,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByUsername(String username);
+    List<User> findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(String role,String username);
 
+    Optional<User> findByPhone(String phone);
+
+    Optional<User> findByUsername(String username);
     List<User> findAllByDeletedIsFalse();
+
     List<User> findAllByDeletedIsFalseAndUsernameNot(String username);
 
-    List<User> findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(String role,String username);
 }

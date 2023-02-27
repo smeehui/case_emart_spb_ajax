@@ -20,7 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserRequestDTO extends BaseEntity implements Validator {
+public class UserRequestDTO implements Validator {
     private Long id;
 
     @NotEmpty(message = "Full name is empty")
@@ -35,6 +35,10 @@ public class UserRequestDTO extends BaseEntity implements Validator {
     @NotEmpty(message = "Password is required")
     private String password;
 
+    @NotEmpty(message = "Re-password is required")
+    private String rePassword;
+
+
     @NotEmpty(message = "Address is required")
     private String address;
 
@@ -44,8 +48,8 @@ public class UserRequestDTO extends BaseEntity implements Validator {
 
     private String roles;
 
-    @Nullable
-    MultipartFile file;
+
+    private MultipartFile file;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -56,6 +60,31 @@ public class UserRequestDTO extends BaseEntity implements Validator {
     public void validate(Object target, Errors errors) {
         UserRequestDTO userDTO = (UserRequestDTO) target;
 
+        String username = userDTO.getUsername();
+        String password = userDTO.getPassword();
+        String rePassword = userDTO.getRePassword();
+
+        int min = 5;
+        int max = 10;
+        if (username.length() < min || username.length() > max) {
+            errors.rejectValue("username","username.length","Username's characters must be between 5 and 10");
+        }
+        else {
+            if (!username.matches("[a-z]+")) {
+                errors.rejectValue("username","username.format","Username must be text only");
+            }
+        }
+
+        if (!password.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")) {
+            errors.rejectValue("password","password.format","Password must contain minimum of eight characters, at least one letter and one number");
+        } else if (!password.equals(rePassword)) {
+            errors.rejectValue("password","password.match","Password and re-password are not similar");
+        }
+
+    }
+
+    public void validateEdit(Object target, Errors errors) {
+        UserRequestDTO userDTO = (UserRequestDTO) target;
         String username = userDTO.getUsername();
         String password = userDTO.getPassword();
 
@@ -74,8 +103,5 @@ public class UserRequestDTO extends BaseEntity implements Validator {
             errors.rejectValue("password","password.format","Password must contain minimum of eight characters, at least one letter and one number:");
         }
 
-    }
-
-    public void validateEdit(UserRequestDTO userRequestDTO, BindingResult bindingResult) {
     }
 }

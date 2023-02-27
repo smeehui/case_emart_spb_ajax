@@ -37,6 +37,9 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "product_type_id",referencedColumnName = "id")
     private ProdType productType;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private ProdCategory prodCategory;
 
     public ProductCreateResDTO toProductCreateResDTO() {
 

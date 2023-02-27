@@ -19,6 +19,10 @@ public class AppUtils {
         List<FieldError> fieldErrors = result.getFieldErrors();
         Map<String, String> errors = new HashMap<>();
         for (FieldError fieldError : fieldErrors) {
+            if (fieldError.getField().equals("file")){
+                errors.put(fieldError.getField(), "File upload is invalid!");
+                continue;
+            }
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);

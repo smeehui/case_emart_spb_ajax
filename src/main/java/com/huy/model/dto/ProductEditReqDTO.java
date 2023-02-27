@@ -1,6 +1,8 @@
 package com.huy.model.dto;
 
+import com.huy.model.ProdCategory;
 import com.huy.model.ProdType;
+import com.huy.model.enums.EProdCategory;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +30,10 @@ public class ProductEditReqDTO implements Validator {
 
     private String prodTypeStr;
 
+    private String prodCateStr;
+
+    private ProdCategory prodCategory;
+
     private ProdType prodType;
 
     @Override
@@ -41,6 +47,7 @@ public class ProductEditReqDTO implements Validator {
         String title = productEditReqDTO.getTitle();
         String priceStr = productEditReqDTO.getPrice();
         String prodType = productEditReqDTO.getProdTypeStr();
+        String prodCate = productEditReqDTO.getProdCateStr();
 
         if (title==null||title.trim().equals("")) {
             errors.rejectValue("title", "title.empty","Product title is required");
@@ -66,6 +73,19 @@ public class ProductEditReqDTO implements Validator {
                 errors.rejectValue("prodTypeStr", "prodTypeStr.empty", "Product type is required");
             } else if (!prodType.matches("[0-9]")) {
                 errors.rejectValue("prodTypeStr", "prodTypeStr.format", "Product type is invalid");
+            }
+        }
+        if (prodCate == null) {
+            errors.rejectValue("prodCateStr", "prodTypeStr.empty", "Product category is required");
+        }else {
+            if (prodCate.trim().equals("")) {
+                errors.rejectValue("prodCateStr", "prodTypeStr.empty", "Product category is required");
+            } else {
+                try {
+                    EProdCategory.valueOf(prodCate);
+                } catch (Exception e) {
+                    errors.rejectValue("prodCateStr", "prodCateStr.empty", "Product category is not valid");
+                }
             }
         }
 

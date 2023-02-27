@@ -493,6 +493,7 @@
         page.elements.inputUsername = $("#inputUsername");
         page.elements.inputRole = $("#inputRole");
         page.elements.inputPassword = $("#inputPassword");
+        page.elements.inputRePassword = $("#re-password");
         page.elements.inputEmail = $("#inputEmail");
         page.elements.inputFullName = $("#inputName");
         page.elements.inputPhone = $("#inputPhone");
@@ -649,17 +650,19 @@
 
             let username = page.elements.inputUsername.val();
             let password = page.elements.inputPassword.val();
+            let rePassword = page.elements.inputRePassword.val();
             let roles = [{id: page.elements.inputRole.val()}];
             let file = page.elements.inputImage[0].files[0] || null;
 
             let formData = new FormData();
 
-            formData.append("fullName", fullName)
-            formData.append("phone", phone)
-            formData.append("address", address)
-            formData.append("email", email)
+            formData.append("fullName", fullName);
+            formData.append("phone", phone);
+            formData.append("address", address);
+            formData.append("email", email);
             formData.append("username", username)
             formData.append("password", password)
+            formData.append("rePassword", rePassword);
             formData.append("roles", JSON.stringify(roles));
             formData.append("file", file)
 

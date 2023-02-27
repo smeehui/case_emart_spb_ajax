@@ -14,6 +14,8 @@ public interface IUserService extends UserDetailsService, IGeneralService<User> 
 
     public Optional<User> findByEmail(String email);
 
+    Optional<User> findByPhone(String phone);
+
     UserResponseDTO create(UserRequestDTO userRequestDTO);
 
     UserResponseDTO update(UserRequestDTO userRequestDTO, User user);

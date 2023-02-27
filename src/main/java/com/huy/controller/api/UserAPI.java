@@ -182,12 +182,12 @@ public class UserAPI {
     }
 
     @PostMapping
-    public ResponseEntity<?> doCreate(@Validated UserRequestDTO userRequestDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> doCreate(UserRequestDTO userRequestDTO, BindingResult bindingResult) {
 
         new UserRequestDTO().validate(userRequestDTO, bindingResult);
         if (bindingResult.hasErrors()) {
-            FieldError fieldError = bindingResult.getFieldError();
-            if (!fieldError.getField().equals("file")) return appUtil.mapErrorToResponse(bindingResult);
+//            if (!fieldError.getField().equals("file")) return appUtil.mapErrorToResponse(bindingResult);
+            return appUtil.mapErrorToResponse(bindingResult);
         }
 
         if (userService.findByUsername(userRequestDTO.getUsername()).isPresent()) {
@@ -196,6 +196,10 @@ public class UserAPI {
 
         if (userService.findByEmail(userRequestDTO.getEmail()).isPresent()) {
             throw new DataInputException("Email is existed!");
+        }
+
+        if (userService.findByPhone(userRequestDTO.getPhone()).isPresent()) {
+            throw new DataInputException("Phone is existed!");
         }
 
         UserResponseDTO userResponseDTO = userService.create(userRequestDTO);

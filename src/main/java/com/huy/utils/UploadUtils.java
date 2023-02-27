@@ -4,6 +4,7 @@ import com.huy.exception.DataInputException;
 import com.huy.model.Product;
 import com.huy.model.ProductAvatar;
 import com.cloudinary.utils.ObjectUtils;
+import com.huy.model.User;
 import com.huy.model.UserAvatar;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +47,17 @@ public class UploadUtils {
             throw new DataInputException("Không thể upload hình ảnh của sản phẩm chưa được lưu");
 
         String publicId = String.format("%s/%s", IMAGE_UPLOAD_FOLDER_USER, userAvatar.getId());
+
+        return ObjectUtils.asMap(
+                "public_id", publicId,
+                "overwrite", true,
+                "resource_type", "image"
+        );
+    }
+
+    public Map buildUserImageDestroyParams(User user, String publicId) {
+        if (user == null || user.getId() == null)
+            throw new DataInputException("Không thể destroy hình ảnh của sản phẩm không xác định");
 
         return ObjectUtils.asMap(
                 "public_id", publicId,

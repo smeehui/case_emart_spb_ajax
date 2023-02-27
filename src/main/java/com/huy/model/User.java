@@ -50,6 +50,7 @@ public class User extends BaseEntity implements UserDetails {
     private String password;
 
 
+
     @OneToOne
     @JoinColumn(name = "user_avatar_id", referencedColumnName = "id", nullable = false)
     private UserAvatar userAvatar;

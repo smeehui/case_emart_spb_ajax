@@ -28,35 +28,48 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements IUserService{
+public class UserServiceImpl implements IUserService {
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @Autowired
     UserAvatarRepositpory userAvatarRepositpory;
-
-
     @Autowired
     IUploadService uploadService;
-
-
     @Autowired
     UploadUtils uploadUtils;
-
-
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private RoleRepository roleRepository;
 
 
     @Override
     public List<User> findAll() {
-        
+
         return userRepository.findAll();
+    }
+
+    @Override
+    public Optional<User> findByPhone(String phone) {
+        return userRepository.findByPhone(phone);
+    }
+
+
+    @Override
+    public List<User> findAllByDeletedIsFalse() {
+        return userRepository.findAllByDeletedIsFalse();
+    }
+
+    @Override
+    public List<User> findAllByDeletedIsFalseAndUsernameNot(String username) {
+        return userRepository.findAllByDeletedIsFalseAndUsernameNot(username);
+    }
+
+    @Override
+    public List<User> findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(String role, String username) {
+        return userRepository.findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(role, username);
     }
 
     @Override
@@ -74,7 +87,7 @@ public class UserServiceImpl implements IUserService{
     private void uploadAndSaveUserAvatar(UserRequestDTO userRequestDTO, UserAvatar userAvatar) {
         try {
             MultipartFile file = userRequestDTO.getFile();
-            if (file == null) {
+            if (file == null || file.isEmpty()) {
                 userAvatar.setFileName(UploadUtils.DEFAULT_USER_AVATAR_IMAGE);
                 userAvatar.setFileUrl(UploadUtils.DEFAULT_USER_AVATAR_URL);
                 userAvatar.setFileFolder(UploadUtils.IMAGE_UPLOAD_FOLDER_USER);
@@ -98,10 +111,8 @@ public class UserServiceImpl implements IUserService{
         }
     }
 
-
     @Override
     public void deleteById(Long id) {
-
 
 
     }
@@ -132,15 +143,17 @@ public class UserServiceImpl implements IUserService{
         return userRepository.findByEmail(email);
     }
 
+
     @Override
     public UserResponseDTO create(UserRequestDTO userRequestDTO) {
         UserAvatar userAvatar = new UserAvatar();
+
+        Set<Role> roles = getUserRole(userRequestDTO);
 
         userAvatarRepositpory.save(userAvatar);
 
         uploadAndSaveUserAvatar(userRequestDTO, userAvatar);
 
-        Set<Role> roles  =getUserRole(userRequestDTO);
         User user = modelMapper.map(userRequestDTO, User.class);
 
         user.setId(null);
@@ -148,9 +161,7 @@ public class UserServiceImpl implements IUserService{
         user.setUserAvatar(userAvatar);
         save(user);
 
-        UserResponseDTO userResponseDTO = modelMapper.map(user, UserResponseDTO.class);
-
-        return userResponseDTO;
+        return modelMapper.map(user, UserResponseDTO.class);
     }
 
     @Override
@@ -166,7 +177,10 @@ public class UserServiceImpl implements IUserService{
 
         if (file == null) {
             userRepository.save(user);
-        } else uploadAndSaveUserAvatar(userRequestDTO, userAvatar);
+        } else {
+            destroyUserImageOnCloud(user, userAvatar);
+            uploadAndSaveUserAvatar(userRequestDTO, userAvatar);
+        }
 
 
         UserResponseDTO userResponseDTO = modelMapper.map(user, UserResponseDTO.class);
@@ -177,19 +191,18 @@ public class UserServiceImpl implements IUserService{
 
     }
 
-    @Override
-    public List<User> findAllByDeletedIsFalse() {
-        return userRepository.findAllByDeletedIsFalse();
-    }
-
-    @Override
-    public List<User> findAllByDeletedIsFalseAndUsernameNot(String username) {
-        return userRepository.findAllByDeletedIsFalseAndUsernameNot(username);
-    }
-
-    @Override
-    public  List<User> findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(String role,String username) {
-        return userRepository.findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(role,username);
+    private void destroyUserImageOnCloud(User user, UserAvatar userAvatar) {
+        if (userAvatar.getFileName().equals(uploadUtils.DEFAULT_USER_AVATAR_IMAGE)) {
+            return;
+        }
+        String publicId = String.format("%s/%s", userAvatar.getFileFolder(), userAvatar.getId());
+        Map params = uploadUtils.buildUserImageDestroyParams(user, publicId);
+        try {
+            uploadService.destroyImage(publicId, params);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new DataInputException("Destroy image failed");
+        }
     }
 
     private Set<Role> getUserRole(UserRequestDTO userDTO) {
@@ -200,7 +213,8 @@ public class UserServiceImpl implements IUserService{
         ObjectMapper objectMapper = new ObjectMapper();
         Set<RoleDTO> roleDTOSet;
         try {
-            roleDTOSet = objectMapper.readValue(roleDTOs, new TypeReference<Set<RoleDTO>>() {});
+            roleDTOSet = objectMapper.readValue(roleDTOs, new TypeReference<Set<RoleDTO>>() {
+            });
         } catch (JsonProcessingException e) {
             throw new DataInputException("Role is invalid");
         }
