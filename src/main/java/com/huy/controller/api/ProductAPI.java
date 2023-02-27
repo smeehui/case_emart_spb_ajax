@@ -7,23 +7,22 @@ import com.huy.model.Product;
 import com.huy.model.dto.ProductCreateReqDTO;
 import com.huy.model.dto.ProductCreateResDTO;
 import com.huy.model.dto.ProductEditReqDTO;
+import com.huy.model.dto.ProductResponseDTO;
 import com.huy.model.enums.EProdCategory;
+import com.huy.model.enums.EProdType;
 import com.huy.repository.ProdCategoryRepository;
 import com.huy.service.productCategory.IProdCategoryService;
 import com.huy.service.productType.IProductTypeService;
 import com.huy.utils.AppUtils;
 import com.huy.utils.product.IProductService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,6 +61,19 @@ public class ProductAPI {
         return new ResponseEntity<>(productCreateResDTOS, HttpStatus.OK);
     }
 
+    @GetMapping("/best_sellers")
+    public ResponseEntity<?> getBestSellerProduct() {
+        ProdType prodType = productTypeService.findByName(EProdType.BEST_SELLER);
+        List<ProductResponseDTO> productResponseDTOS =
+                productService.findAllByProductType(prodType)
+                        .stream()
+                        .map(product -> modelMapper.map(product, ProductResponseDTO.class))
+                        .toList();
+        return new ResponseEntity<>(productResponseDTOS,HttpStatus.OK);
+    }
+
+
+
     @PostMapping
     public ResponseEntity<?> create(@Validated ProductCreateReqDTO productCreateReqDTO, BindingResult bindingResult) {
 
@@ -81,7 +93,7 @@ public class ProductAPI {
         if (prodTypeOptional.isEmpty()) {
             throw new DataInputException("Invalid product type");
         }
-        Optional<ProdCategory> prodCategoryOptional = prodCategoryService.findAllByName(EProdCategory.valueOf(prodCateName));
+        Optional<ProdCategory> prodCategoryOptional = prodCategoryService.findByName(EProdCategory.valueOf(prodCateName));
 
         if (prodCategoryOptional.isEmpty()) {
             throw new DataInputException("Invalid product type");
@@ -117,7 +129,7 @@ public class ProductAPI {
 
         String prodCatStr = productEditReqDTO.getProdCateStr();
 
-        Optional<ProdCategory> prodCategoryOptional = prodCategoryService.findAllByName(EProdCategory.valueOf(prodCatStr));
+        Optional<ProdCategory> prodCategoryOptional = prodCategoryService.findByName(EProdCategory.valueOf(prodCatStr));
         if (prodCategoryOptional.isEmpty()) {
             throw new DataInputException("Invalid product category");
         }

@@ -7,7 +7,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <link href="/assets/css/styles.css" rel="stylesheet"/>
-<!--    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet"/>-->
+    <!--    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet"/>-->
     <th:block th:replace="layout/head_link::header('Management')"/>
     <!--    <script src="/assets/js/font_awesome.js"></script>-->
 </head>
@@ -322,7 +322,7 @@
                 </button>
             </div>
             <ul class="alert alert-danger d-none px-5"></ul>
-            <form id="editUserForm" class="m-3">
+            <form id="editUserForm" class="m-3" enctype="multipart/form-data">
                 <div class="mb-3 row">
                     <div class="col-lg-6">
                         <div class="mb-3 row">
@@ -708,16 +708,18 @@
                 });
         };
 
-        page.commands.updateUserById = ()=>{
+        page.commands.updateUserById = () => {
             page.commands.showLoadingModal();
             let id = currentUser.id;
             let fullName = page.elements.userFullNameEdit.val();
             let email = page.elements.userEmailEdit.val();
             let username = page.elements.usernameEdit.val();
-            let phone = page.elements.userPhoneEdit .val();
+            let phone = page.elements.userPhoneEdit.val();
             let address = page.elements.userAddressEdit.val();
-            let file = page.elements.userImageEdit[0].files[0] || null;
-            let roles = [{id:page.elements.userRoleEdit .val()}];
+            let file = page.elements.userImageEdit[0].files[0];
+            let roles = [{id: page.elements.userRoleEdit.val()}];
+
+            console.log(file);
 
             let formData = new FormData();
 

@@ -9,8 +9,9 @@ import com.huy.exception.UnauthorizedProcess;
 import com.huy.model.Role;
 import com.huy.model.User;
 import com.huy.model.dto.RoleDTO;
-import com.huy.model.dto.UserRequestDTO;
+import com.huy.model.dto.UserCreateRequestDTO;
 import com.huy.model.dto.UserResponseDTO;
+import com.huy.model.dto.UserUpdateRequestDTO;
 import com.huy.model.enums.ERole;
 import com.huy.repository.RoleRepository;
 import com.huy.service.role.IRoleService;
@@ -22,9 +23,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.List;
@@ -59,13 +60,15 @@ public class UserAPI {
 
         List<User> users = null;
 
-        ERole role = currentUser.getRoles().iterator().next().getName();
-        switch (role) {
+        Role role = currentUser.getRoles().iterator().next();
+        ERole roleName = role.getName();
+        switch (roleName) {
             case ROLE_ADMIN -> {
                 users = userService.findAllByDeletedIsFalseAndUsernameNot(username);
             }
             case ROLE_MODERATOR -> {
-                users = userService.findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(role.name(), username);
+                Role adminRole = roleService.findById(1l).get();
+                users = userService.findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(adminRole, username);
             }
         }
         if (users == null) throw new UnauthorizedProcess("You are not authorized");
@@ -91,10 +94,25 @@ public class UserAPI {
     }
 
     @PatchMapping("/edit/{userID}")
-    public ResponseEntity<?> editUserBy(@PathVariable Long userID, UserRequestDTO userRequestDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> editUserBy(@PathVariable Long userID, MultipartFile file, UserUpdateRequestDTO userUpdateRequestDTO, BindingResult bindingResult) {
+
+//        MultipartFile file = userCreateRequestDTO.getFile();
+
+        if (file != null && !file.isEmpty()) {
+            long fileSize = file.getSize();
+
+            if (fileSize > 512000) {
+                throw new DataInputException("Max file size is 500KB");
+            }
+        }
+
+        if (bindingResult.hasErrors()) {
+            return appUtil.mapErrorToResponse(bindingResult);
+        }
 
         String username = appUtil.getUsernamePrincipal();
-        Optional<User> modifyingUserUsernameOpt = userService.findByUsername(userRequestDTO.getUsername());
+
+        Optional<User> modifyingUserUsernameOpt = userService.findByUsername(userUpdateRequestDTO.getUsername());
         if (modifyingUserUsernameOpt.isEmpty()) {
             throw new DataInputException("User not found");
         }
@@ -110,31 +128,36 @@ public class UserAPI {
         User oldUser = userByIdOptional.get();
 
 
-        Set<Role> newUserRoles = getUserRole(userRequestDTO);
+        Set<Role> newUserRoles = getUserRole(userUpdateRequestDTO);
         Role modifyingRole = newUserRoles.iterator().next();
         boolean isAuthoritiesValid = validateAuthorities(currentUser, modifyingRole, oldUser);
 
-        if (!isAuthoritiesValid) throw new UnauthorizedProcess("You are not authorized to proceed");
+        if (!isAuthoritiesValid) {
+            throw new UnauthorizedProcess("You are not authorized to proceed");
+        }
 
 
         User user = modifyingUserUsernameOpt.get();
-        new UserRequestDTO().validateEdit(userRequestDTO, bindingResult);
+        new UserUpdateRequestDTO().validateEdit(userUpdateRequestDTO, bindingResult);
 
-        if (bindingResult.hasErrors()) {
-            FieldError fieldError = bindingResult.getFieldError();
-            assert fieldError != null;
-            if (!fieldError.getField().equals("file")) return appUtil.mapErrorToResponse(bindingResult);
-        }
 
-        Optional<User> userEmailOpt = userService.findByEmail(userRequestDTO.getEmail());
+
+        Optional<User> userEmailOpt = userService.findByEmail(userUpdateRequestDTO.getEmail());
+        Optional<User> userPhoneOpt = userService.findByPhone(userUpdateRequestDTO.getPhone());
 
         if (userEmailOpt.isPresent()) {
-            if (!userEmailOpt.get().getUsername().equals(userRequestDTO.getUsername())) {
+            if (!userEmailOpt.get().getUsername().equals(userUpdateRequestDTO.getUsername())) {
                 throw new DataInputException("Email is existed");
             }
         }
+        if (userPhoneOpt.isPresent()) {
+            if (!userPhoneOpt.get().getUsername().equals(userUpdateRequestDTO.getUsername())) {
+                throw new DataInputException("Phone is existed");
+            }
+        }
+
         user.setRoles(newUserRoles);
-        UserResponseDTO userResponseDTO = userService.update(userRequestDTO, user);
+        UserResponseDTO userResponseDTO = userService.update(userUpdateRequestDTO, user, file);
 
         return new ResponseEntity<>(userResponseDTO, HttpStatus.OK);
     }
@@ -182,27 +205,27 @@ public class UserAPI {
     }
 
     @PostMapping
-    public ResponseEntity<?> doCreate(UserRequestDTO userRequestDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> doCreate(@Validated UserCreateRequestDTO userCreateRequestDTO, BindingResult bindingResult) {
 
-        new UserRequestDTO().validate(userRequestDTO, bindingResult);
+        new UserCreateRequestDTO().validate(userCreateRequestDTO, bindingResult);
         if (bindingResult.hasErrors()) {
 //            if (!fieldError.getField().equals("file")) return appUtil.mapErrorToResponse(bindingResult);
             return appUtil.mapErrorToResponse(bindingResult);
         }
 
-        if (userService.findByUsername(userRequestDTO.getUsername()).isPresent()) {
+        if (userService.findByUsername(userCreateRequestDTO.getUsername()).isPresent()) {
             throw new DataInputException("User name is existed!");
         }
 
-        if (userService.findByEmail(userRequestDTO.getEmail()).isPresent()) {
+        if (userService.findByEmail(userCreateRequestDTO.getEmail()).isPresent()) {
             throw new DataInputException("Email is existed!");
         }
 
-        if (userService.findByPhone(userRequestDTO.getPhone()).isPresent()) {
+        if (userService.findByPhone(userCreateRequestDTO.getPhone()).isPresent()) {
             throw new DataInputException("Phone is existed!");
         }
 
-        UserResponseDTO userResponseDTO = userService.create(userRequestDTO);
+        UserResponseDTO userResponseDTO = userService.create(userCreateRequestDTO);
 
         return new ResponseEntity<>(userResponseDTO, HttpStatus.OK);
     }
@@ -222,7 +245,7 @@ public class UserAPI {
     }
 
 
-    private Set<Role> getUserRole(UserRequestDTO userDTO) {
+    private Set<Role> getUserRole(UserUpdateRequestDTO userDTO) {
         String roleDTOs = userDTO.getRoles();
         if (roleDTOs == null) {
             throw new DataInputException("User roles is null");

@@ -1,6 +1,8 @@
 package com.huy.service.productType;
 
 import com.huy.model.ProdType;
+import com.huy.model.ProdTypeRepository;
+import com.huy.model.enums.EProdType;
 import com.huy.repository.ProductTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,8 @@ public class ProductTypeService implements IProductTypeService {
 
     @Autowired
     ProductTypeRepository productTypeRepository;
+    @Autowired
+    private ProdTypeRepository prodTypeRepository;
 
     @Override
     public List<ProdType> findAll() {
@@ -37,5 +41,10 @@ public class ProductTypeService implements IProductTypeService {
     @Override
     public void delete(ProdType prodType) {
 
+    }
+
+    @Override
+    public ProdType findByName(EProdType name) {
+        return prodTypeRepository.findByName(name);
     }
 }

@@ -2,8 +2,10 @@ package com.huy.utils.product;
 
 
 import com.huy.exception.DataInputException;
+import com.huy.model.ProdType;
 import com.huy.model.Product;
 import com.huy.model.ProductAvatar;
+import com.huy.model.dto.ProductResponseDTO;
 import com.huy.repository.UserAvatarRepository;
 import com.huy.model.dto.ProductCreateReqDTO;
 import com.huy.model.dto.ProductCreateResDTO;
@@ -111,6 +113,11 @@ public class ProductServiceImpl implements IProductService{
         return productCreateResDTO;
     }
 
+    @Override
+    public List<Product> findAllByProductType(ProdType prodType) {
+        List<Product> allByProductType = productRepository.findAllByProductType(prodType);
+        return allByProductType;
+    }
     private void uploadAndSaveProductImage(ProductCreateReqDTO productCreateReqDTO, ProductAvatar productAvatar) {
         try {
             MultipartFile file = productCreateReqDTO.getFile();

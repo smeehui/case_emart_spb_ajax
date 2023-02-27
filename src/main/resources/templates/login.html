@@ -60,7 +60,8 @@
                                             <label for="roleRe" class="label">Select role</label>
                                             <select class="form-select" id="roleRe">
                                                 <option value="1">ADMIN</option>
-                                                <option value="2">USER</option>
+                                                <option value="2">MODERATOR</option>
+                                                <option value="3">USER</option>
                                             </select>
                                         </div>
                                     </div>
@@ -165,6 +166,7 @@
             let password = $("#passwordRe").val();
             let email = $("#emailRe").val();
             let phone = $("#phoneRe").val();
+            let rePassword = $("#re-password").val();
 
             let formData = new FormData();
             formData.append("username", username)
@@ -172,6 +174,7 @@
             formData.append("password", password)
             formData.append("email", email)
             formData.append("phone", phone)
+            formData.append("rePassword", rePassword)
 
 
             $.ajax({

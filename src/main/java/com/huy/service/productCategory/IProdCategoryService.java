@@ -7,5 +7,5 @@ import com.huy.service.IGeneralService;
 import java.util.Optional;
 
 public interface IProdCategoryService extends IGeneralService<ProdCategory> {
-    Optional<ProdCategory> findAllByName(EProdCategory name);
+    Optional<ProdCategory> findByName(EProdCategory name);
 }

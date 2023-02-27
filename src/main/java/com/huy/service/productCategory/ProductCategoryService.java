@@ -24,8 +24,8 @@ public class ProductCategoryService implements IProdCategoryService{
         return prodCategoryRepository.findById(id);
     }
     @Override
-    public Optional<ProdCategory> findAllByName(EProdCategory name) {
-        return prodCategoryRepository.findAllByName(name);
+    public Optional<ProdCategory> findByName(EProdCategory name) {
+        return prodCategoryRepository.findByName(name);
     }
 
     @Override

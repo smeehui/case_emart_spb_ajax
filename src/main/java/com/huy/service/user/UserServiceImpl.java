@@ -8,8 +8,9 @@ import com.huy.model.Role;
 import com.huy.model.User;
 import com.huy.model.UserAvatar;
 import com.huy.model.dto.RoleDTO;
-import com.huy.model.dto.UserRequestDTO;
+import com.huy.model.dto.UserCreateRequestDTO;
 import com.huy.model.dto.UserResponseDTO;
+import com.huy.model.dto.UserUpdateRequestDTO;
 import com.huy.repository.RoleRepository;
 import com.huy.repository.UserAvatarRepositpory;
 import com.huy.repository.UserRepository;
@@ -68,7 +69,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<User> findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(String role, String username) {
+    public List<User> findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(Role role, String username) {
         return userRepository.findAllByDeletedIsFalseAndRolesNotContainsIgnoreCaseAndUsernameNot(role, username);
     }
 
@@ -84,9 +85,9 @@ public class UserServiceImpl implements IUserService {
     }
 
 
-    private void uploadAndSaveUserAvatar(UserRequestDTO userRequestDTO, UserAvatar userAvatar) {
+    private void uploadAndSaveUserAvatar(UserAvatar userAvatar, MultipartFile file) {
         try {
-            MultipartFile file = userRequestDTO.getFile();
+//            MultipartFile file = userCreateRequestDTO.getFile();
             if (file == null || file.isEmpty()) {
                 userAvatar.setFileName(UploadUtils.DEFAULT_USER_AVATAR_IMAGE);
                 userAvatar.setFileUrl(UploadUtils.DEFAULT_USER_AVATAR_URL);
@@ -145,16 +146,16 @@ public class UserServiceImpl implements IUserService {
 
 
     @Override
-    public UserResponseDTO create(UserRequestDTO userRequestDTO) {
+    public UserResponseDTO create(UserCreateRequestDTO userCreateRequestDTO) {
         UserAvatar userAvatar = new UserAvatar();
 
-        Set<Role> roles = getUserRole(userRequestDTO);
+        Set<Role> roles = getUserRole(userCreateRequestDTO);
 
         userAvatarRepositpory.save(userAvatar);
 
-        uploadAndSaveUserAvatar(userRequestDTO, userAvatar);
+        uploadAndSaveUserAvatar(userAvatar, userCreateRequestDTO.getFile());
 
-        User user = modelMapper.map(userRequestDTO, User.class);
+        User user = modelMapper.map(userCreateRequestDTO, User.class);
 
         user.setId(null);
         user.setRoles(roles);
@@ -165,21 +166,21 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserResponseDTO update(UserRequestDTO userRequestDTO, User user) {
+    public UserResponseDTO update(UserUpdateRequestDTO userUpdateRequestDTO, User user, MultipartFile file) {
 
-        user.setEmail(userRequestDTO.getEmail());
-        user.setAddress(userRequestDTO.getAddress());
-        user.setPhone(userRequestDTO.getPhone());
-        user.setFullName(userRequestDTO.getFullName());
+        user.setEmail(userUpdateRequestDTO.getEmail());
+        user.setAddress(userUpdateRequestDTO.getAddress());
+        user.setPhone(userUpdateRequestDTO.getPhone());
+        user.setFullName(userUpdateRequestDTO.getFullName());
 
         UserAvatar userAvatar = user.getUserAvatar();
-        MultipartFile file = userRequestDTO.getFile();
+//        MultipartFile file = userCreateRequestDTO.getFile();
 
         if (file == null) {
             userRepository.save(user);
         } else {
             destroyUserImageOnCloud(user, userAvatar);
-            uploadAndSaveUserAvatar(userRequestDTO, userAvatar);
+            uploadAndSaveUserAvatar(userAvatar, file);
         }
 
 
@@ -205,7 +206,7 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
-    private Set<Role> getUserRole(UserRequestDTO userDTO) {
+    private Set<Role> getUserRole(UserCreateRequestDTO userDTO) {
         String roleDTOs = userDTO.getRoles();
         if (roleDTOs == null) {
             throw new DataInputException("User roles is null");

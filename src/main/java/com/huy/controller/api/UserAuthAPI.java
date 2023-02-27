@@ -3,8 +3,8 @@ package com.huy.controller.api;
 import com.huy.exception.DataInputException;
 import com.huy.exception.ResourceNotFoundException;
 import com.huy.model.User;
+import com.huy.model.dto.UserCreateRequestDTO;
 import com.huy.model.dto.UserDTO;
-import com.huy.model.dto.UserRequestDTO;
 import com.huy.model.dto.UserResponseDTO;
 import com.huy.model.jwt.JwtResponse;
 import com.huy.repository.RoleRepository;
@@ -21,7 +21,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -82,24 +81,24 @@ public class UserAuthAPI {
     }
 
     @PostMapping(path = "/register",consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> doCreate(UserRequestDTO userRequestDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> doCreate(UserCreateRequestDTO userCreateRequestDTO, BindingResult bindingResult) {
 
-        new UserRequestDTO().validate(userRequestDTO, bindingResult);
+        new UserCreateRequestDTO().validate(userCreateRequestDTO, bindingResult);
         if (bindingResult.hasErrors()) {
             FieldError fieldError =  bindingResult.getFieldError();
             if (!fieldError.getField().equals("file")) return appUtil.mapErrorToResponse(bindingResult);
         }
 
 
-        if (userService.findByUsername(userRequestDTO.getUsername()).isPresent()) {
+        if (userService.findByUsername(userCreateRequestDTO.getUsername()).isPresent()) {
             throw new DataInputException("User name is existed!");
         }
 
-        if (userService.findByEmail(userRequestDTO.getEmail()).isPresent()) {
+        if (userService.findByEmail(userCreateRequestDTO.getEmail()).isPresent()) {
             throw new DataInputException("Email is existed!");
         }
 
-        UserResponseDTO userResponseDTO = userService.create(userRequestDTO);
+        UserResponseDTO userResponseDTO = userService.create(userCreateRequestDTO);
 
         return new ResponseEntity<>(userResponseDTO, HttpStatus.OK);
     }

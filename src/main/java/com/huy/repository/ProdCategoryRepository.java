@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ProdCategoryRepository extends JpaRepository<ProdCategory, Long> {
-    Optional<ProdCategory> findAllByName(EProdCategory name);
+    Optional<ProdCategory> findByName(EProdCategory name);
 }
