@@ -64,6 +64,7 @@ public class ProductAPI {
     @GetMapping("/best_sellers")
     public ResponseEntity<?> getBestSellerProduct() {
         ProdType prodType = productTypeService.findByName(EProdType.BEST_SELLER);
+//        ProdType prodType2 = productTypeService.findByName("BEST_SELLER");
         List<ProductResponseDTO> productResponseDTOS =
                 productService.findAllByProductType(prodType)
                         .stream()

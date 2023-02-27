@@ -1,12 +1,16 @@
 package com.huy.controller.api;
 
 import com.huy.exception.DataInputException;
+import com.huy.exception.UnauthorizedProcess;
 import com.huy.model.*;
+import com.huy.model.dto.CartDetailResponseDTO;
+import com.huy.model.dto.CartResponseDTO;
 import com.huy.service.cart.ICartService;
 import com.huy.service.cartDetail.ICartDetailService;
 import com.huy.utils.product.IProductService;
 import com.huy.service.user.IUserService;
 import com.huy.utils.AppUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -34,8 +39,31 @@ public class CartAPI {
     private IProductService productService;
 
     @Autowired
+    ModelMapper modelMapper;
+
+    @Autowired
     private AppUtils appUtils;
 
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getByUser() {
+        String username = appUtils.getUsernamePrincipal();
+        if (username.equals("anonymousUser")) {
+            throw new UnauthorizedProcess("You are not authorized to proceed");
+        }
+
+        User user = userService.findByUsername(username).get();
+
+        Optional<Cart> cartOptional = cartService.findByUser(user);
+        CartResponseDTO cartResponseDTO;
+
+        if (cartOptional.isEmpty()) {
+            cartResponseDTO = new CartResponseDTO();
+        }else {
+            cartResponseDTO = getCartResponseDTO(cartOptional.get());
+        }
+        return new ResponseEntity<>(cartResponseDTO, HttpStatus.OK);
+    }
 
     @PostMapping("/add/{productId}")
     public ResponseEntity<?> addCart(@PathVariable Long productId) {
@@ -55,15 +83,16 @@ public class CartAPI {
         Product product = productOptional.get();
 
         Optional<Cart> cartOptional = cartService.findByUser(user);
-
+        Cart cart;
         if (cartOptional.isEmpty()) {
-            cartService.createIfNotExist(user, product);
+            cart = cartService.createIfNotExist(user, product);
         } else {
-            Cart cart = cartOptional.get();
-            cartService.createIfExist(user, cart, product);
+            cart = cartOptional.get();
+            cart = cartService.createIfExist(user, cart, product);
         }
+        CartResponseDTO cartResponseDTO = getCartResponseDTO(cart);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(cartResponseDTO, HttpStatus.OK);
     }
 
     @PostMapping("/minus/{productId}")
@@ -99,10 +128,13 @@ public class CartAPI {
             throw new DataInputException("Invalid process (Product's cart detail not found)");
         }
 
-        cartService.decreaseProductCartDetail(cart, cartDetailOptional.get(), product);
+        cart = cartService.decreaseProductCartDetail(cart, cartDetailOptional.get(), product);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        CartResponseDTO cartResponseDTO = getCartResponseDTO(cart);
+
+        return new ResponseEntity<>(cartResponseDTO,HttpStatus.OK);
     }
+
 
     @PostMapping("/checkout")
     public ResponseEntity<?> addCart() {
@@ -165,9 +197,11 @@ public class CartAPI {
             throw new DataInputException("Invalid process (Product's cart detail not found)");
         }
 
-        cartService.adjustCartDetailQuantity(cart, cartDetailOptional.get(), product, quantity);
+        cart = cartService.adjustCartDetailQuantity(cart, cartDetailOptional.get(), product, quantity);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        CartResponseDTO cartResponseDTO = getCartResponseDTO(cart);
+
+        return new ResponseEntity<>(cartResponseDTO,HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{productId}")
@@ -209,9 +243,13 @@ public class CartAPI {
     }
 
 
-    @PostMapping("/{a}/{b}")
-    public ResponseEntity<?> test(@PathVariable Long a, @PathVariable Long b) {
+    private CartResponseDTO getCartResponseDTO(Cart cart) {
+        List<CartDetailResponseDTO> cartDetailList =
+                cartDetailService.findAllByCart(cart)
+                        .stream()
+                        .map(cartDetail -> modelMapper.map(cartDetail, CartDetailResponseDTO.class)).toList();
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        CartResponseDTO cartResponseDTO = new CartResponseDTO().setCartDetails(cartDetailList).setTotalAmount(cart.getTotalAmount());
+        return cartResponseDTO;
     }
 }

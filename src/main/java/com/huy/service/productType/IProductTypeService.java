@@ -7,4 +7,5 @@ import com.huy.service.IGeneralService;
 
 public interface IProductTypeService extends IGeneralService<ProdType> {
     ProdType findByName(EProdType bestSeller);
+    ProdType findByName(String name);
 }

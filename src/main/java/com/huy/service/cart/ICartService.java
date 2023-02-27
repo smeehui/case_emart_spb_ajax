@@ -12,13 +12,13 @@ public interface ICartService extends IGeneralService<Cart> {
 
     Optional<Cart> findByUser(User user);
 
-    void createIfNotExist(User user, Product product);
+    Cart createIfNotExist(User user, Product product);
 
-    void createIfExist(User user, Cart cart, Product product);
+    Cart createIfExist(User user, Cart cart, Product product);
 
     void checkout(User user, Cart cart);
 
-    void decreaseProductCartDetail(Cart cart, CartDetail cartDetail, Product product);
+    Cart decreaseProductCartDetail(Cart cart, CartDetail cartDetail, Product product);
 
-    void adjustCartDetailQuantity(Cart cart, CartDetail cartDetail, Product product, Long quantity);
+    Cart adjustCartDetailQuantity(Cart cart, CartDetail cartDetail, Product product, Long quantity);
 }

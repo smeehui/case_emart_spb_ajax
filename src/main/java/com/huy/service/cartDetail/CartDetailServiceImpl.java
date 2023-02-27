@@ -31,7 +31,12 @@ public class CartDetailServiceImpl implements ICartDetailService{
 
     public Optional<CartDetail> findByCartAndProduct(Cart cart, Product product){
         return cartDetailRepository.findByCartAndProduct(cart, product);
-    };
+    }
+
+    @Override
+    public List<CartDetail> findAllByCart(Cart cart) {
+        return cartDetailRepository.findAllByCart(cart);
+    }
 
     @Override
     public CartDetail save(CartDetail cartDetail) {

@@ -70,9 +70,10 @@ public class SecurityConfig  {
                         "/assets/**",
                         "/api/auth/**",
                         "/shop",
-                        "/login")
+                        "/login",
+                        "/api/carts/**")
                 .permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/users/**")
+                .requestMatchers(HttpMethod.GET,"/api/users/**","/api/products/**")
                 .permitAll()
                 .requestMatchers("/management/**")
                 .hasAnyAuthority("ROLE_ADMIN","ROLE_MODERATOR")

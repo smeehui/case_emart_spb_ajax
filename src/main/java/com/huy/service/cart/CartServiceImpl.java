@@ -46,7 +46,7 @@ public class CartServiceImpl implements ICartService{
     }
 
     @Override
-    public void createIfNotExist(User user, Product product) {
+    public Cart createIfNotExist(User user, Product product) {
         Cart cart = new Cart();
         cart.setUser(user);
 
@@ -57,7 +57,6 @@ public class CartServiceImpl implements ICartService{
 
         cart.setTotalAmount(productAmount);
 
-        cartRepository.save(cart);
 
         CartDetail cartDetail = new CartDetail();
         cartDetail.setProduct(product);
@@ -68,10 +67,12 @@ public class CartServiceImpl implements ICartService{
         cartDetail.setCart(cart);
 
         cartDetailRepository.save(cartDetail);
+
+        return cartRepository.save(cart);
     }
 
     @Override
-    public void createIfExist(User user, Cart cart, Product product) {
+    public Cart createIfExist(User user, Cart cart, Product product) {
         Optional<CartDetail> cartDetailOptional = cartDetailRepository.findByCartAndProduct(cart, product);
 
         String productTitle = product.getTitle();
@@ -101,7 +102,7 @@ public class CartServiceImpl implements ICartService{
 
         BigDecimal newTotalAmount = cartDetailRepository.getTotalAmountByCart(cart);
         cart.setTotalAmount(newTotalAmount);
-        cartRepository.save(cart);
+        return cartRepository.save(cart);
     }
 
     @Override
@@ -120,11 +121,10 @@ public class CartServiceImpl implements ICartService{
 
         cartDetailRepository.deleteAllByCart(cart);
         cartRepository.deleteById(cart.getId());
-
     }
 
     @Override
-    public void decreaseProductCartDetail(Cart cart, CartDetail cartDetail, Product product) {
+    public Cart decreaseProductCartDetail(Cart cart, CartDetail cartDetail, Product product) {
 
         Long oldQuantity = cartDetail.getQuantity();
         BigDecimal prodPrice = product.getPrice();
@@ -147,17 +147,20 @@ public class CartServiceImpl implements ICartService{
         BigDecimal newTotalAmount = cartDetailRepository.getTotalAmountByCart(cart);
         if (newTotalAmount == null) {
             cartRepository.deleteById(cart.getId());
+            return new Cart();
         } else {
             cart.setTotalAmount(newTotalAmount);
-            cartRepository.save(cart);
+            cart = cartRepository.save(cart);
         }
+        return cart;
     }
 
     @Override
-    public void adjustCartDetailQuantity(Cart cart, CartDetail cartDetail, Product product, Long quantity) {
+    public Cart adjustCartDetailQuantity(Cart cart, CartDetail cartDetail, Product product, Long quantity) {
 
         BigDecimal prodPrice = product.getPrice();
         Long cartDetailId = cartDetail.getId();
+
         if (quantity == 0) {
             cartDetailRepository.deleteById(cartDetailId);
         }
@@ -173,10 +176,12 @@ public class CartServiceImpl implements ICartService{
         BigDecimal newTotalAmount = cartDetailRepository.getTotalAmountByCart(cart);
         if (newTotalAmount == null) {
             cartRepository.deleteById(cart.getId());
+            return new Cart();
         } else {
             cart.setTotalAmount(newTotalAmount);
-            cartRepository.save(cart);
+            cart = cartRepository.save(cart);
         }
+        return cart;
     }
 
     @Override
