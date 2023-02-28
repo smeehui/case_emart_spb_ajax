@@ -67,4 +67,259 @@
     <script src="/assets/js/baseapp.js"></script>
 </th:block>
 
+<th:block th:fragment="shopping">
+    <script>
+        function init() {
+            const shop = {
+                urls: {
+                    findUserById: AppBase.DOMAIN_SPB_API + "/users",
+                    getBestSellerProduct: AppBase.DOMAIN_SPB_API + "/products/best_sellers",
+                    getUserCart: AppBase.DOMAIN_SPB_API + "/carts/user",
+                    addOneCartDetail:AppBase.DOMAIN_SPB_API + "/carts/add/",
+                    minusOneCartDetail:AppBase.DOMAIN_SPB_API + "/carts/minus/",
+                },
+                elements: {},
+                loadData: {},
+                commands: {},
+            };
+            shop.elements.prodContainer = $("#prodContainer");
+
+            shop.elements.cartBtn = $("#cartBtn");
+            shop.elements.cartContainer = $("#cart-container");
+
+            shop.elements.orderDetailQuantity = $("#orderDetailQuantity");
+            shop.elements.cartDetails = $("#cartDetails");
+            shop.elements.cartHeader = $("#cartHeader");
+            shop.elements.cartFooter = $("#cartFooter");
+            shop.elements.cartTotalAmount = $("#cartTotalAmount");
+            shop.elements.cartTotalAmountBtn = $("#cartTotalAmountBtn")
+            shop.elements.cartDetailQuantityBtn = $("#cartDetailQuantityBtn")
+
+
+            //=======LOAD DATA=========//
+            shop.loadData.loadAllProducts = () => {
+                $.ajax({
+                    type: "GET",
+                    url: AppBase.DOMAIN_SPB_API + "/products",
+                })
+                    .done((data) => {
+                        $.each(data, (i, item) => {
+                            let pCard = shop.commands.renderProductCard(item);
+                            shop.elements.prodContainer.prepend(pCard);
+                        })
+                        shop.commands.addAddToCartBtnClickEvent();
+                    })
+                    .fail((jqXHR) => {
+                        console.log(jqXHR)
+                    })
+            }
+            shop.loadData.loadUserCart = () => {
+                return $.ajax({
+                    type: "GET",
+                    url: shop.urls.getUserCart
+                })
+                    .done((data) => {
+                        let {cartDetails, totalAmount} = data;
+                        if (!cartDetails||!totalAmount) {
+                            shop.elements.cartDetails.text("Add a product to show!")
+                            shop.elements.cartTotalAmountBtn.text("$" + 0);
+                            shop.elements.cartDetailQuantityBtn.text(0);
+                            shop.elements.orderDetailQuantity.text(0);
+                            shop.elements.cartHeader.hide();
+                            shop.elements.cartFooter.hide();
+                            return;
+                        }
+                        let count = 0;
+                        shop.elements.cartDetails.empty();
+                        $.each(cartDetails, (i, cartDetail) => {
+                            let cartDetailEl = shop.commands.renderCartDetail(cartDetail);
+                            shop.elements.cartDetails.prepend(cartDetailEl);
+                            count++;
+                        })
+                        shop.elements.orderDetailQuantity.text(count);
+                        shop.elements.cartTotalAmount.text("$" + totalAmount);
+                        shop.elements.cartTotalAmountBtn.text("$" + totalAmount);
+                        shop.elements.cartDetailQuantityBtn.text(count);
+                        shop.elements.cartHeader.show();
+                        shop.elements.cartFooter.show();
+                        shop.commands.addQuantityBtnClickEvent()
+                    })
+                    .fail((jqXHR) => {
+                        shop.elements.cartHeader.hide();
+                        shop.elements.cartFooter.hide();
+                        switch (jqXHR.status) {
+                            case 401:
+                                shop.elements.cartDetails.text("Please login to see cart details!")
+                                break;
+                            default:
+                                shop.elements.cartDetails.text("Some thing went wong, please try again later!");
+                        }
+                    })
+            }
+            //==========RENDER===============//
+            shop.commands.renderProductCard = (prod) => {
+                let {id, title, price, avatar} = prod;
+                let imageUrl = AppBase.BASE_URL_CLOUD_IMAGE + '/' + AppBase.BASE_SHOP_PRODUCT_SCALE_IMAGE + '/' + avatar.fileFolder + '/' + avatar.fileName;
+                return `
+             <div class="col-md-3 col-sm-6">
+                <div class="single-shop-product">
+                    <div class="product-upper" style="height: 195px">
+                        <img src="${imageUrl}" alt="${title}">
+                    </div>
+                    <h2><a href="">${title}</a></h2>
+                    <div class="product-carousel-price">
+                        <ins>$ ${price}</ins> <del>$ ${price - price * 0.15}</del>
+                    </div>
+                    <div class="product-option-shop">
+                        <a class="btn btn-success addToCartBtn" data-id="${id}">Add to cart</a>
+                    </div>
+                </div>
+            </div>
+            `
+            }
+            shop.commands.renderCartDetail = (cartDetail) => {
+                let {title, price, quantity, amount, product} = cartDetail;
+                let {avatar, id} = product;
+                let imageUrl = AppBase.BASE_URL_CLOUD_IMAGE + '/' + AppBase.BASE_CART_PRODUCT_SCALE_IMAGE + '/' + avatar.fileFolder + '/' + avatar.fileName;
+                return `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between row">
+                                <div class="col-lg-7 d-flex flex-row align-items-center " style="font-size: 16px">
+                                    <div>
+                                        <img
+                                                src="${imageUrl}"
+                                                class="img-fluid rounded-3" alt="Shopping item"
+                                                style="width: 65px;">
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5>${title}</h5>
+                                        <p class="small mb-0">${product.description}</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 d-flex flex-row align-items-center">
+                                    <span   style="cursor: pointer"
+                                            class="border border-1 rounded px-2 mx-2 btn-add"
+                                            data-id=${id}>
+                                        <i  class="fa fa-plus"></i>
+                                    </span>
+                                    <input  style="width: 30px;height: 25px"
+                                            class="mb-0 text-center border-light"
+                                            value="${quantity}"/>
+                                    <span   style="cursor: pointer"
+                                            class="border border-1 rounded px-2 mx-2 btn-minus"
+                                            data-id=${id}>
+                                        <i  class="fa fa-minus"></i>
+                                    </span>
+                                    <div    style="width: 80px;">
+                                        <p  class="h3 text-center">$ ${amount}</p>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger">
+                                        <i  class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+            }
+
+            //=========EVENT HANDLER===========//
+
+            shop.elements.cartBtn.hover(() => {
+                shop.elements.cartContainer.show(200)
+            })
+
+            shop.elements.cartContainer.mouseleave(function () {
+                $(this).hide(200);
+            })
+
+            shop.commands.addQuantityBtnClickEvent = ()=>{
+                shop.elements.addBtn = $(".btn-add");
+                shop.elements.minusBtn = $(".btn-minus");
+
+                shop.elements.addBtn.off("click");
+                shop.elements.minusBtn.off("click");
+
+                shop.elements.addBtn.on("click", function () {
+                    let id = $(this).data("id");
+                    shop.commands.addCartDetailQuantity(id);
+                });
+                shop.elements.minusBtn.on("click", function () {
+                    let id = $(this).data("id");
+                    shop.commands.minusCartDetailQuantity(id);
+                });
+            }
+            shop.commands.addAddToCartBtnClickEvent = ()=>{
+                shop.elements.addToCartBtn = $(".addToCartBtn");
+                shop.elements.addToCartBtn.off("click");
+                shop.elements.addToCartBtn.on("click", function () {
+                    let id = $(this).data("id");
+                    shop.commands.addProductToCart(id);
+                });
+            }
+
+            shop.commands.eventHandler = ()=>{
+                window.onclick = (e)=>{
+                    if(!e.target.closest("#cart-container"))
+                        shop.elements.cartContainer.hide(200)
+                }
+            }
+            //========DATABASE INTERACT=========//
+
+            shop.commands.addCartDetailQuantity = (id)=>{
+                $.ajax({
+                    type: "POST",
+                    url: shop.urls.addOneCartDetail + id,
+                }).done(()=>{
+                    shop.loadData.loadUserCart();
+                }).fail((jqXHR)=>{
+                    console.log(jqXHR);
+                })
+            }
+
+            shop.commands.minusCartDetailQuantity = (id)=>{
+                $.ajax({
+                    type: "POST",
+                    url: shop.urls.minusOneCartDetail + id,
+                }).done(()=>{
+                    shop.loadData.loadUserCart();
+                }).fail((jqXHR)=>{
+                    console.log(jqXHR);
+                })
+            }
+
+            shop.commands.addProductToCart = (id)=>{
+                $.ajax({
+                    type: "POST",
+                    url: shop.urls.addOneCartDetail + id,
+                }).done(()=>{
+                    shop.loadData.loadUserCart();
+                }).fail((jqXHR)=>{
+                    console.log(jqXHR);
+                })
+            }
+
+
+
+
+
+
+            shop.loadData.handleLoadData = () => {
+                shop.loadData.loadAllProducts();
+                shop.loadData.loadUserCart();
+                shop.commands.eventHandler()
+            }
+            return () => {
+                shop.loadData.handleLoadData();
+            }
+        }
+
+        $(() => {
+            let Shop = init();
+            Shop();
+        })
+    </script>
+</th:block>
+
 </html>

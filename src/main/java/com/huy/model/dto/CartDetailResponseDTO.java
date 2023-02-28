@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class CartDetailResponseDTO {
+
     private String title;
 
     private BigDecimal price;

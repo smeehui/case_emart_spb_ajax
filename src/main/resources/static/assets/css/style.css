@@ -437,11 +437,11 @@ z-index: 999;}
 }
 
 .single-product:hover .product-hover a.add-to-cart-link {
-    top: 30%;
+    top: 25%;
 }
 
 .single-product:hover .product-hover a.view-details-link {
-    bottom: 30%;
+    bottom: 25%;
 }
 
 .single-product:hover .product-hover:after {
@@ -1163,9 +1163,9 @@ tbody tr{
 }
 
 /*Cart*/
-#cart-container{
-    top: -106px;
-    width: 550px;
-    right: 298px;
+#cart-wrapper{
+    top: 75px;
+    right: 0px;
+    width: 650px;
     z-index: 10;
 }

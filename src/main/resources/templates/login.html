@@ -109,7 +109,6 @@
         </form>
     </div>
     <div class="toast-container" style="position: absolute; top: 0; right: 0;">
-
     </div>
 </div>
 <th:block th:replace="layout/site_footer::top"/>
@@ -148,19 +147,7 @@
                     return clearTimeout(id);
                 }, 2000);
             }).fail((jqXHR) => {
-                let error;
-                switch (jqXHR.status) {
-                    case 400:
-                        error = jqXHR.responseJSON;
-                        AppBase.SweetAlert.showErrorAlert(error.message);
-                        break;
-                    case 404:
-                        error = jqXHR.responseJSON;
-                        AppBase.SweetAlert.showErrorAlert(error.message);
-                        break;
-                    default:
-                        AppBase.SweetAlert.showErrorAlert("Something went wrong, please try again later!");
-                }
+                AppBase.errorNotify(jqXHR);
             })
         })
     }

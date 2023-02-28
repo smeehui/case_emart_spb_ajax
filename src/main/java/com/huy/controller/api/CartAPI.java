@@ -5,6 +5,7 @@ import com.huy.exception.UnauthorizedProcess;
 import com.huy.model.*;
 import com.huy.model.dto.CartDetailResponseDTO;
 import com.huy.model.dto.CartResponseDTO;
+import com.huy.repository.CartDetailRepository;
 import com.huy.service.cart.ICartService;
 import com.huy.service.cartDetail.ICartDetailService;
 import com.huy.utils.product.IProductService;
@@ -18,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +45,8 @@ public class CartAPI {
 
     @Autowired
     private AppUtils appUtils;
+    @Autowired
+    private CartDetailRepository cartDetailRepository;
 
 
     @GetMapping("/user")
@@ -244,12 +248,15 @@ public class CartAPI {
 
 
     private CartResponseDTO getCartResponseDTO(Cart cart) {
+
         List<CartDetailResponseDTO> cartDetailList =
                 cartDetailService.findAllByCart(cart)
                         .stream()
                         .map(cartDetail -> modelMapper.map(cartDetail, CartDetailResponseDTO.class)).toList();
 
-        CartResponseDTO cartResponseDTO = new CartResponseDTO().setCartDetails(cartDetailList).setTotalAmount(cart.getTotalAmount());
+        CartResponseDTO cartResponseDTO = new CartResponseDTO()
+                                            .setCartDetails(cartDetailList)
+                                            .setTotalAmount(cart.getTotalAmount());
         return cartResponseDTO;
     }
 }

@@ -65,10 +65,11 @@ public class CartServiceImpl implements ICartService{
         cartDetail.setQuantity(quantity);
         cartDetail.setAmount(productAmount);
         cartDetail.setCart(cart);
+        cart = cartRepository.save(cart);
 
         cartDetailRepository.save(cartDetail);
 
-        return cartRepository.save(cart);
+        return cart;
     }
 
     @Override
