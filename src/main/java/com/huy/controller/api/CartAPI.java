@@ -2,21 +2,22 @@ package com.huy.controller.api;
 
 import com.huy.exception.DataInputException;
 import com.huy.exception.UnauthorizedProcess;
-import com.huy.model.*;
+import com.huy.model.Cart;
+import com.huy.model.CartDetail;
+import com.huy.model.Product;
+import com.huy.model.User;
 import com.huy.model.dto.CartDetailResponseDTO;
 import com.huy.model.dto.CartResponseDTO;
 import com.huy.repository.CartDetailRepository;
 import com.huy.service.cart.ICartService;
 import com.huy.service.cartDetail.ICartDetailService;
-import com.huy.utils.product.IProductService;
 import com.huy.service.user.IUserService;
 import com.huy.utils.AppUtils;
+import com.huy.service.product.IProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -52,9 +53,6 @@ public class CartAPI {
     @GetMapping("/user")
     public ResponseEntity<?> getByUser() {
         String username = appUtils.getUsernamePrincipal();
-        if (username.equals("anonymousUser")) {
-            throw new UnauthorizedProcess("You are not authorized to proceed");
-        }
 
         User user = userService.findByUsername(username).get();
 
@@ -75,6 +73,7 @@ public class CartAPI {
         String username = appUtils.getUsernamePrincipal();
 
         Optional<User> userOptional = userService.findByUsername(username);
+
 
         User user = userOptional.get();
 
@@ -249,14 +248,17 @@ public class CartAPI {
 
     private CartResponseDTO getCartResponseDTO(Cart cart) {
 
-        List<CartDetailResponseDTO> cartDetailList =
-                cartDetailService.findAllByCart(cart)
-                        .stream()
-                        .map(cartDetail -> modelMapper.map(cartDetail, CartDetailResponseDTO.class)).toList();
+        List<CartDetailResponseDTO> cartDetailList;
+        if (!(cart.getId()==null)) {
+             cartDetailList =cartDetailService.findAllByCart(cart)
+                            .stream()
+                            .map(cartDetail -> modelMapper.map(cartDetail, CartDetailResponseDTO.class)).toList();
 
-        CartResponseDTO cartResponseDTO = new CartResponseDTO()
-                                            .setCartDetails(cartDetailList)
-                                            .setTotalAmount(cart.getTotalAmount());
-        return cartResponseDTO;
+
+        } else cartDetailList = new ArrayList<>();
+
+        return new CartResponseDTO()
+                .setCartDetails(cartDetailList)
+                .setTotalAmount(cart.getTotalAmount());
     }
 }

@@ -77,6 +77,8 @@
                     getUserCart: AppBase.DOMAIN_SPB_API + "/carts/user",
                     addOneCartDetail:AppBase.DOMAIN_SPB_API + "/carts/add/",
                     minusOneCartDetail:AppBase.DOMAIN_SPB_API + "/carts/minus/",
+                    adjustCartDetailQuantity:AppBase.DOMAIN_SPB_API + "/carts/adjust",
+                    deleteCartDetail: AppBase.DOMAIN_SPB_API + "/carts/delete/"
                 },
                 elements: {},
                 loadData: {},
@@ -149,6 +151,7 @@
                         shop.elements.cartFooter.hide();
                         switch (jqXHR.status) {
                             case 401:
+                            case 403:
                                 shop.elements.cartDetails.text("Please login to see cart details!")
                                 break;
                             default:
@@ -204,7 +207,8 @@
                                         <i  class="fa fa-plus"></i>
                                     </span>
                                     <input  style="width: 30px;height: 25px"
-                                            class="mb-0 text-center border-light"
+                                            data-id="${id}"
+                                            class="mb-0 text-center border-light input-quantity"
                                             value="${quantity}"/>
                                     <span   style="cursor: pointer"
                                             class="border border-1 rounded px-2 mx-2 btn-minus"
@@ -214,7 +218,7 @@
                                     <div    style="width: 80px;">
                                         <p  class="h3 text-center">$ ${amount}</p>
                                     </div>
-                                    <button class="btn btn-sm btn-danger">
+                                    <button data-id=${id} class="btn btn-sm btn-danger btn-delete">
                                         <i  class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
@@ -234,12 +238,16 @@
                 $(this).hide(200);
             })
 
-            shop.commands.addQuantityBtnClickEvent = ()=>{
+            shop.commands.addQuantityBtnClickEvent = ()=> {
                 shop.elements.addBtn = $(".btn-add");
                 shop.elements.minusBtn = $(".btn-minus");
+                shop.elements.deleteBtn = $(".btn-delete");
+                shop.elements.inputQuantity = $(".input-quantity")
 
                 shop.elements.addBtn.off("click");
                 shop.elements.minusBtn.off("click");
+                shop.elements.deleteBtn.off("click");
+                shop.elements.inputQuantity.off("blur");
 
                 shop.elements.addBtn.on("click", function () {
                     let id = $(this).data("id");
@@ -249,6 +257,16 @@
                     let id = $(this).data("id");
                     shop.commands.minusCartDetailQuantity(id);
                 });
+                shop.elements.deleteBtn.on("click", function () {
+                    let id = $(this).data("id");
+                    shop.commands.deleteCartDetail(id);
+                })
+
+                shop.elements.inputQuantity.blur(function () {
+                    let id = $(this).data("id");
+                    let quantity = $(this).val();
+                    shop.commands.adjustCartDetailQuantity(id, quantity)
+                })
             }
             shop.commands.addAddToCartBtnClickEvent = ()=>{
                 shop.elements.addToCartBtn = $(".addToCartBtn");
@@ -293,16 +311,40 @@
                 $.ajax({
                     type: "POST",
                     url: shop.urls.addOneCartDetail + id,
+                }).done(() => {
+                    shop.loadData.loadUserCart();
+                }).fail((jqXHR) => {
+                    AppBase.SweetAlert.showErrorAlert("Please log in to buy a product!")
+                })
+            }
+            shop.commands.adjustCartDetailQuantity = (id, quantity)=>{
+                $.ajax({
+                    type: "PATCH",
+                    url: shop.urls.adjustCartDetailQuantity + `/${id}/${quantity}`
                 }).done(()=>{
                     shop.loadData.loadUserCart();
                 }).fail((jqXHR)=>{
-                    console.log(jqXHR);
+                    let err = jqXHR.responseJSON;
+                    AppBase.SweetAlert.showErrorAlert(err.message||"Invalid quantity");
                 })
             }
 
-
-
-
+            shop.commands.deleteCartDetail = (id) => {
+                AppBase.SweetAlert.showDeleteConfirmDialog()
+                    .then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    type: "DELETE",
+                                    url: shop.urls.deleteCartDetail + id
+                                }).done(() => {
+                                    shop.elements.cartContainer.show();
+                                    AppBase.SweetAlert.showSuccessAlert("Deleted");
+                                    shop.loadData.loadUserCart();
+                                })
+                            }
+                        }
+                    )
+            }
 
 
             shop.loadData.handleLoadData = () => {

@@ -5,6 +5,7 @@ import com.huy.repository.UserRepository;
 import com.huy.service.user.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -61,48 +62,79 @@ public class SecurityConfig  {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf()
-                .disable()
-                .authorizeHttpRequests()
-                .requestMatchers(
-                        "/",
-                        "/assets/**",
-                        "/api/auth/**",
-                        "/shop",
-                        "/login",
-                        "/api/carts/**")
-                .permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/users/**","/api/products/**")
-                .permitAll()
-                .requestMatchers("/management/**")
-                .hasAnyAuthority("ROLE_ADMIN","ROLE_MODERATOR")
-                .requestMatchers("/index")
-                .hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
-                .anyRequest()
-                .authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-//                .loginProcessingUrl("/auth/login")
-//                .defaultSuccessUrl("/index", true)
-//                .failureUrl("/login?err=true")
+//        http
+//                .csrf()
+//                .disable()
+//                .authorizeHttpRequests()
+//                .requestMatchers(
+//                        "/",
+//                        "/index",
+//                        "/assets/**",
+//                        "/api/auth/**",
+//                        "/shop",
+//                        "/login")
+//                .permitAll()
+//                .requestMatchers(HttpMethod.GET,"/api/users/**","/api/products/**")
+//                .permitAll()
+//                .requestMatchers("/api/carts/**")
+//                .hasAnyAuthority("ROLE_ADMIN","ROLE_MODERATOR","ROLE_USER")
+//                .requestMatchers("/management/**")
+//                .hasAnyAuthority("ROLE_ADMIN","ROLE_MODERATOR")
+////                .authenticated()
+//                .and()
+//                .formLogin()
+//                .loginPage("/login")
+////                .loginProcessingUrl("/auth/login")
+////                .defaultSuccessUrl("/index", true)
+////                .failureUrl("/login?err=true")
 //                .usernameParameter("username").passwordParameter("password")
-                .and()
-                .logout()
-                .logoutUrl("/logout")
-                .clearAuthentication(true)
-                .deleteCookies("jwtToken")
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+//                .and()
+//                .logout()
+//                .logoutUrl("/logout")
+//                .clearAuthentication(true)
+//                .deleteCookies("jwtToken")
+//                .and()
+//                .sessionManagement()
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and()
+//                .authenticationProvider(authenticationProvider)
+//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+//                .exceptionHandling()
+//                .accessDeniedHandler(customAccessDeniedHandler())
+//        ;
+        http
+                .csrf().disable()
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/",
+                                "/index",
+                                "/assets/**",
+                                "/api/auth/**",
+                                "/shop",
+                                "/error/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/**", "/api/products/**")
+                        .permitAll()
+                        .requestMatchers("/api/carts/**","/checkout")
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_MODERATOR", "ROLE_USER")
+                        .requestMatchers("/management/**")
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_MODERATOR")
+                        .anyRequest().authenticated()
+                )
+                .formLogin((form) -> form
+                        .loginPage("/login")
+                        .permitAll())
+                .logout((logout) -> logout
+                        .permitAll()
+                        .logoutUrl("/logout")
+                        .clearAuthentication(true)
+                        .deleteCookies("jwtToken"))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
                 .accessDeniedHandler(customAccessDeniedHandler())
-        ;
-
+                .authenticationEntryPoint(restServicesEntryPoint())
+                .and().httpBasic();
+//
         return http.build();
     }
 

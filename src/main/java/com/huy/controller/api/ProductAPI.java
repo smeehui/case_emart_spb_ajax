@@ -14,7 +14,7 @@ import com.huy.repository.ProdCategoryRepository;
 import com.huy.service.productCategory.IProdCategoryService;
 import com.huy.service.productType.IProductTypeService;
 import com.huy.utils.AppUtils;
-import com.huy.utils.product.IProductService;
+import com.huy.service.product.IProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,12 +62,23 @@ public class ProductAPI {
         return new ResponseEntity<>(productCreateResDTOS, HttpStatus.OK);
     }
 
+    @GetMapping("/{productId}")
+
+    public ResponseEntity<?> getProduct(@PathVariable Long productId) {
+        Optional<Product> productOptional = productService.findById(productId);
+
+        if (productOptional.isEmpty()) {
+            throw new DataInputException("Product not found");
+        }
+        return new ResponseEntity<>(modelMapper.map(productOptional.get(), ProductResponseDTO.class), HttpStatus.OK);
+    }
+
     @GetMapping("/best_sellers")
     public ResponseEntity<?> getBestSellerProduct() {
         ProdType prodType = productTypeService.findByName(EProdType.BEST_SELLER);
 //        ProdType prodType2 = productTypeService.findByName("BEST_SELLER");
         List<ProductResponseDTO> productResponseDTOS =
-                productService.findAllByProductType(prodType)
+                productService.findAllByProductTypeAndDeletedIsFalse(prodType)
                         .stream()
                         .map(product -> modelMapper.map(product, ProductResponseDTO.class))
                         .toList();
@@ -108,8 +120,15 @@ public class ProductAPI {
     }
 
     @PatchMapping("/edit/{productId}")
-    public ResponseEntity<?> update(@PathVariable Long productId, @Validated ProductEditReqDTO productEditReqDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> update(@PathVariable Long productId, @Validated ProductEditReqDTO productEditReqDTO, BindingResult bindingResult, MultipartFile file) {
 
+        if (file != null && !file.isEmpty()) {
+            long fileSize = file.getSize();
+
+            if (fileSize > 512000) {
+                throw new DataInputException("Max file size is 500KB");
+            }
+        }
         productEditReqDTO.setProdType(new ProdType());
         new ProductEditReqDTO().validate(productEditReqDTO, bindingResult);
         if (bindingResult.hasErrors()) {
@@ -138,7 +157,7 @@ public class ProductAPI {
         productEditReqDTO.setProdCategory(prodCategoryOptional.get());
         productEditReqDTO.setProdType(prodTypeOptional.get());
 
-        ProductCreateResDTO productCreateResDTO = productService.update(productEditReqDTO,productOptional.get());
+        ProductCreateResDTO productCreateResDTO = productService.update(productEditReqDTO,productOptional.get(),file);
 
 
         return new ResponseEntity<>(productCreateResDTO,HttpStatus.CREATED);

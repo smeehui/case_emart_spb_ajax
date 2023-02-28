@@ -3,7 +3,6 @@ package com.huy.model.dto;
 import com.huy.model.ProdCategory;
 import com.huy.model.ProdType;
 import com.huy.model.enums.EProdCategory;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,8 +24,6 @@ public class ProductEditReqDTO implements Validator {
     private String title;
     private String price;
     private String description;
-
-    private MultipartFile file;
 
     private String prodTypeStr;
 

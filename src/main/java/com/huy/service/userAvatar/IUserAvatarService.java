@@ -1,6 +1,5 @@
 package com.huy.service.userAvatar;
 
-import com.huy.model.ProductAvatar;
 import com.huy.model.UserAvatar;
 import com.huy.service.IGeneralService;
 

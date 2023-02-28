@@ -1,9 +1,9 @@
 package com.huy.utils;
 
+import com.cloudinary.utils.ObjectUtils;
 import com.huy.exception.DataInputException;
 import com.huy.model.Product;
 import com.huy.model.ProductAvatar;
-import com.cloudinary.utils.ObjectUtils;
 import com.huy.model.User;
 import com.huy.model.UserAvatar;
 import org.springframework.stereotype.Component;

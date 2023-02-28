@@ -1130,37 +1130,6 @@ div.cart-collaterals ul.products li.product:hover .add_to_cart_button{background
     color: #5a88ca;
 }
 
-/*Custom style*/
-form .error {
-    border: 2px solid red !important;
-}
-
-form .preview {
-    width: 250px;
-    height: 250px;
-    margin: auto;
-    margin-top: 30px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px aquamarine dashed;
-}
-
-form .imgPreview{
-    width: 250px;
-    height: 250px;
-    object-fit: none;
-}
-
-thead th:hover {
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.11);
-}
-tbody tr{
-    vertical-align: middle;
-}
-#userDataTable_filter label, .pagination{
-    float: right;
-}
 
 /*Cart*/
 #cart-wrapper{

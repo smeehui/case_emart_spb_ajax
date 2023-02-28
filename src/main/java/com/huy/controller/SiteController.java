@@ -23,4 +23,9 @@ public class SiteController {
         return "shop/shopping";
     }
 
+    @GetMapping("/checkout")
+    public String showCheckoutPage(){
+        return "shop/checkout";
+    }
+
 }

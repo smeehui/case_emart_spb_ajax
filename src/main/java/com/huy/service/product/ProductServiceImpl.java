@@ -1,18 +1,17 @@
-package com.huy.utils.product;
+package com.huy.service.product;
 
 
 import com.huy.exception.DataInputException;
 import com.huy.model.ProdType;
 import com.huy.model.Product;
 import com.huy.model.ProductAvatar;
-import com.huy.model.dto.ProductResponseDTO;
-import com.huy.repository.UserAvatarRepository;
 import com.huy.model.dto.ProductCreateReqDTO;
 import com.huy.model.dto.ProductCreateResDTO;
 import com.huy.model.dto.ProductEditReqDTO;
 import com.huy.repository.ProductAvatarRepository;
 import com.huy.repository.ProductRepository;
 import com.huy.repository.ProductTypeRepository;
+import com.huy.repository.UserAvatarRepository;
 import com.huy.service.upload.IUploadService;
 import com.huy.utils.UploadUtils;
 import org.modelmapper.ModelMapper;
@@ -45,13 +44,9 @@ public class ProductServiceImpl implements IProductService{
 
     @Override
     public List<Product> findAll() {
-        return productRepository.findAll();
+        return productRepository.findAllByDeletedFalse();
     }
 
-    @Override
-    public List<ProductCreateResDTO> findAllProductCreateResDTO() {
-        return productRepository.findAllProductCreateResDTO();
-    }
 
     @Override
     public Optional<Product> findById(Long id) {
@@ -86,15 +81,13 @@ public class ProductServiceImpl implements IProductService{
     }
 
     @Override
-    public ProductCreateResDTO update(ProductEditReqDTO productEditReqDTO, Product product) {
-
-        MultipartFile file = productEditReqDTO.getFile();
+    public ProductCreateResDTO update(ProductEditReqDTO productEditReqDTO, Product product, MultipartFile file) {
 
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
 
         product.setProductType(productEditReqDTO.getProdType());
         product.setDescription(productEditReqDTO.getDescription());
-        product.setTitle(productEditReqDTO.getDescription());
+        product.setTitle(productEditReqDTO.getTitle());
         product.setPrice(BigDecimal.valueOf(Long.parseLong(productEditReqDTO.getPrice())));
         product.setProdCategory(productEditReqDTO.getProdCategory());
 
@@ -104,19 +97,17 @@ public class ProductServiceImpl implements IProductService{
 
             ProductAvatar productAvatar = new ProductAvatar();
             productAvatarRepository.save(productAvatar);
-            uploadAndSaveProductImageUpdate(productEditReqDTO, productAvatar);
+            uploadAndSaveProductImageUpdate(productEditReqDTO, productAvatar,file);
             product.setProductAvatar(productAvatar);
 
         }
         productRepository.save(product);
-        ProductCreateResDTO productCreateResDTO = modelMapper.map(product, ProductCreateResDTO.class);
-        return productCreateResDTO;
+        return modelMapper.map(product, ProductCreateResDTO.class);
     }
 
     @Override
-    public List<Product> findAllByProductType(ProdType prodType) {
-        List<Product> allByProductType = productRepository.findAllByProductType(prodType);
-        return allByProductType;
+    public List<Product> findAllByProductTypeAndDeletedIsFalse(ProdType prodType) {
+        return productRepository.findAllByProductTypeAndDeletedIsFalse(prodType);
     }
     private void uploadAndSaveProductImage(ProductCreateReqDTO productCreateReqDTO, ProductAvatar productAvatar) {
         try {
@@ -153,9 +144,9 @@ public class ProductServiceImpl implements IProductService{
     }
 
 
-    private void uploadAndSaveProductImageUpdate(ProductEditReqDTO productEditReqDTO, ProductAvatar productAvatar) {
+    private void uploadAndSaveProductImageUpdate(ProductEditReqDTO productEditReqDTO, ProductAvatar productAvatar, MultipartFile file) {
         try {
-            Map uploadResult = uploadService.uploadImage(productEditReqDTO.getFile(), uploadUtils.buildImageUploadParamsProduct(productAvatar));
+            Map uploadResult = uploadService.uploadImage(file, uploadUtils.buildImageUploadParamsProduct(productAvatar));
             String fileUrl = (String) uploadResult.get("secure_url");
             String fileFormat = (String) uploadResult.get("format");
 
@@ -187,8 +178,9 @@ public class ProductServiceImpl implements IProductService{
     public void delete(Product product) {
         try {
             ProductAvatar productAvatar = product.getProductAvatar();
-            productRepository.deleteById(product.getId());
+            product.setDeleted(true);
             productAvatarRepository.deleteById(productAvatar.getId());
+            productRepository.save(product);
             destroyProductImageOnCloud(product, productAvatar);
         } catch (Exception e) {
             e.printStackTrace();

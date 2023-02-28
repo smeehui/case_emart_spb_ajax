@@ -1,7 +1,6 @@
 package com.huy.service.productType;
 
 import com.huy.model.ProdType;
-import com.huy.model.dto.ProdTypeDTO;
 import com.huy.model.enums.EProdType;
 import com.huy.service.IGeneralService;
 

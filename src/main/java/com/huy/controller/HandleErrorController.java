@@ -1,12 +1,13 @@
 package com.huy.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.web.servlet.ModelAndView;
+
 import java.security.Principal;
 
 
@@ -62,28 +63,30 @@ public class HandleErrorController implements ErrorController {
 //    }
 
     @RequestMapping("/error")
-    public ResponseEntity<?> handleError(HttpServletRequest request) {
+    public String handleError(HttpServletRequest request) {
         String errorMsg = "";
         String title = "";
         int httpErrorCode = getErrorCode(request);
 
         switch (httpErrorCode) {
             case 401: {
-                return new ResponseEntity<>(httpErrorCode, HttpStatus.UNAUTHORIZED);
+//                return new ResponseEntity<>(httpErrorCode, HttpStatus.UNAUTHORIZED);
             }
 
             case 403: {
-                return new ResponseEntity<>(httpErrorCode, HttpStatus.FORBIDDEN);
+                return "error/403";
+//                return new ResponseEntity<>(httpErrorCode, HttpStatus.FORBIDDEN);
             }
 
             default: {
-                return new ResponseEntity<>(httpErrorCode, HttpStatus.BAD_REQUEST);
+//                return new ResponseEntity<>(httpErrorCode, HttpStatus.BAD_REQUEST);
             }
         }
+        return "/";
     }
 
     private int getErrorCode(HttpServletRequest httpRequest) {
-        return (Integer) httpRequest.getAttribute("javax.servlet.error.status_code");
+        return (Integer) httpRequest.getAttribute("jakarta.servlet.error.status_code");
     }
 
     @RequestMapping("/403")

@@ -6,6 +6,7 @@ import com.huy.model.Product;
 import com.huy.model.dto.ProductCreateResDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,8 +14,9 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    List<Product> findAllByDeletedFalse();
 
-    List<Product> findAllByProductType(ProdType productType);
+    List<Product> findAllByProductTypeAndDeletedIsFalse(ProdType productType);
 
     @Query("SELECT NEW com.huy.model.dto.ProductCreateResDTO (" +
                 "p.id, " +

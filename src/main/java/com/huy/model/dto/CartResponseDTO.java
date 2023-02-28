@@ -1,7 +1,6 @@
 package com.huy.model.dto;
 
 
-import com.huy.model.CartDetail;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

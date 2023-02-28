@@ -36,7 +36,8 @@ public class ProductAvatar extends BaseEntity {
     @Column(name = "cloud_id")
     private String cloudId;
 
-    @OneToOne(mappedBy = "productAvatar")
+    @OneToOne
+    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private Product products;
 
 

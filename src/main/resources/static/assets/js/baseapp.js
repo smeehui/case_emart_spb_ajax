@@ -7,9 +7,11 @@ class AppBase {
 
     static BASE_URL_CLOUD_IMAGE = "https://res.cloudinary.com/smeenguyen/image/upload";
     static BASE_SCALE_IMAGE = "c_limit,w_60,h_60,q_100";
-    static BASE_PROMOTE_PRODUCT_SCALE_IMAGE = "c_limit,w_242,h_302,q_100";
-    static BASE_SHOP_PRODUCT_SCALE_IMAGE = "c_limit,w_195,h_243,q_100";
+    static BASE_SCALE_PRODUCT_BESTSELLER_IMAGE = "c_limit,w_600,h_600,q_100";
+    static BASE_PROMOTE_PRODUCT_SCALE_IMAGE = "c_limit,w_242,h_290,q_100";
+    static BASE_SHOP_PRODUCT_SCALE_IMAGE = "c_limit,w_195,h_195,q_100";
     static BASE_CART_PRODUCT_SCALE_IMAGE = "c_limit,w_65,h_65,q_100";
+    static BASE_CART_CHECKOUT_PRODUCT_SCALE_IMAGE = "c_limit,w_120,h_240,q_100";
     static function
 
     static errorNotify(jqXHR) {
@@ -17,17 +19,17 @@ class AppBase {
         switch (jqXHR.status) {
             case 400:
                 error = jqXHR.responseJSON;
-                AppBase.SweetAlert.showErrorAlert(error.message);
+               AppBase.SweetAlert.showErrorAlert(error.message);
                 break;
             case 404:
                 error = jqXHR.responseJSON;
                 AppBase.SweetAlert.showErrorAlert(error.message);
                 break;
             case 401:
-                SweetAlert.showError401();
+                AppBase.SweetAlert.showError401();
                 break;
             case 403:
-                SweetAlert.showError403();
+                AppBase.SweetAlert.showErrorAlert("Please log in to buy a product!");
                 break;
             default:
                 AppBase.SweetAlert.showErrorAlert("Something went wrong, please try again later!");

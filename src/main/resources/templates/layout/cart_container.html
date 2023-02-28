@@ -6,9 +6,9 @@
     <div class="row">
      <div class="mb-3">
        <button id="cartBtn" style="font-size: 16px" class="btn btn-primary float-end position-relative" href="">
-         Cart - <span class="cart-amunt" id="cartTotalAmountBtn">$100</span>
+         Cart - <span class="cart-amunt" id="cartTotalAmountBtn">$0</span>
          <i class="fa fa-shopping-cart"></i>
-         <span class="position-absolute bg-success product-count" id="cartDetailQuantityBtn">5</span>
+         <span class="position-absolute bg-success product-count" id="cartDetailQuantityBtn">0</span>
        </button>
      </div>
     </div>
@@ -35,16 +35,16 @@
               </div>
             </div>
 
-            <div id="cartDetails">
+            <div id="cartDetails" style="max-height: 450px;overflow-y: scroll">
 
             </div>
             <div class="card mb-3" id="cartFooter" style="display: none;">
               <div class="card-body">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                   <div class="col-lg-4 text-end"><p class="h2">Total:</p></div>
                   <div class="col-lg-4 text-end"><p class="h2" id="cartTotalAmount">$500.00</p></div>
                   <div class="col-lg-4">
-                    <button class="btn btn-lg btn-primary float-end">Check out</button>
+                    <a href="/checkout"><button class="btn btn-lg btn-primary float-end">Check out</button></a>
                   </div>
                 </div>
               </div>

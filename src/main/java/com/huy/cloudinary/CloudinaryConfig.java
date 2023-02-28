@@ -1,11 +1,8 @@
 package com.huy.cloudinary;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 
 @ConfigurationProperties(prefix = "application.cloudinary")
 @Data

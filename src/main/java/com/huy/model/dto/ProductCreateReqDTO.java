@@ -2,8 +2,6 @@ package com.huy.model.dto;
 
 import com.huy.model.ProdCategory;
 import com.huy.model.ProdType;
-import com.huy.model.Product;
-import com.huy.model.ProductAvatar;
 import com.huy.model.enums.EProdCategory;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -13,6 +11,7 @@ import lombok.Setter;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.math.BigDecimal;
 
 

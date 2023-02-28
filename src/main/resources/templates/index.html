@@ -14,6 +14,7 @@
             crossorigin="anonymous"
     />
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+      <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
 
@@ -313,6 +314,8 @@
                 getUserCart: AppBase.DOMAIN_SPB_API + "/carts/user",
                 addOneCartDetail:AppBase.DOMAIN_SPB_API + "/carts/add/",
                 minusOneCartDetail:AppBase.DOMAIN_SPB_API + "/carts/minus/",
+                adjustCartDetailQuantity:AppBase.DOMAIN_SPB_API + "/carts/adjust",
+                deleteCartDetail: AppBase.DOMAIN_SPB_API + "/carts/delete/"
             },
             elements: {},
             loadData: {},
@@ -412,10 +415,11 @@
 
         //===========Render============//
         page.commands.renderSliderPoster = (data) =>{
-            let {title,description,avatar} = data;
-            return`
+            let {title, description, avatar} = data;
+            let imageUrl = AppBase.BASE_URL_CLOUD_IMAGE + '/' + AppBase.BASE_SCALE_PRODUCT_BESTSELLER_IMAGE + '/' + avatar.fileFolder + '/' + avatar.fileName;
+            return `
                   <li>
-                    <img src="${avatar.fileUrl}" alt="Slide">
+                    <img src="${imageUrl}" alt="Slide">
                     <div class="caption-group">
                         <h2 class="caption title">
                             ${title} <span class="primary"> <strong>Best seller</strong></span>
@@ -479,7 +483,8 @@
                                         <i  class="fa fa-plus"></i>
                                     </span>
                                     <input  style="width: 30px;height: 25px"
-                                            class="mb-0 text-center border-light"
+                                            class="mb-0 text-center border-light input-quantity"
+                                            data-id="${id}"
                                             value="${quantity}"/>
                                     <span   style="cursor: pointer"
                                             class="border border-1 rounded px-2 mx-2 btn-minus"
@@ -489,7 +494,7 @@
                                     <div    style="width: 80px;">
                                         <p  class="h4 text-center m-auto">$ ${amount}</p>
                                     </div>
-                                    <button class="btn btn-sm btn-danger">
+                                    <button data-id=${id} class="btn btn-sm btn-danger btn-delete">
                                         <i  class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
@@ -509,12 +514,17 @@
             $(this).hide(200);
         })
 
-        page.commands.addQuantityBtnClickEvent = ()=>{
+        page.commands.addQuantityBtnClickEvent = ()=> {
             page.elements.addBtn = $(".btn-add");
             page.elements.minusBtn = $(".btn-minus");
+            page.elements.deleteBtn = $(".btn-delete");
+            page.elements.inputQuantity = $(".input-quantity")
 
             page.elements.addBtn.off("click");
             page.elements.minusBtn.off("click");
+            page.elements.deleteBtn.off("click");
+            page.elements.inputQuantity.off("blur");
+
 
             page.elements.addBtn.on("click", function (e) {
                 let id = $(this).data("id");
@@ -524,6 +534,16 @@
                 let id = $(this).data("id");
                 page.commands.minusCartDetailQuantity(id);
             });
+
+            page.elements.deleteBtn.on("click", function () {
+                let id = $(this).data("id");
+                page.commands.deleteCartDetail(id);
+            })
+            page.elements.inputQuantity.blur(function (){
+                let id = $(this).data("id");
+                let quantity = $(this).val();
+                page.commands.adjustCartDetailQuantity(id,quantity)
+            })
         }
         page.commands.addAddToCartBtnClickEvent = ()=>{
             page.elements.addToCartBtn = $(".addToCartBtn");
@@ -568,22 +588,48 @@
             $.ajax({
                 type: "POST",
                 url: page.urls.addOneCartDetail + id,
-            }).done(()=>{
+            }).done(() => {
                 page.loadData.loadUserCart();
-            }).fail((jqXHR)=>{
+            }).fail((jqXHR) => {
                 console.log(123)
                 AppBase.errorNotify(jqXHR);
             })
         }
 
+        page.commands.adjustCartDetailQuantity = (id, quantity)=>{
+            $.ajax({
+                type: "PATCH",
+                url: page.urls.adjustCartDetailQuantity + `/${id}/${quantity}`
+            }).done(()=>{
+                page.loadData.loadUserCart();
+            }).fail((jqXHR)=>{
+                let err = jqXHR.responseJSON;
+                AppBase.SweetAlert.showErrorAlert(err.message||"Invalid quantity");
+            })
+        }
+        page.commands.deleteCartDetail = (id) => {
+            AppBase.SweetAlert.showDeleteConfirmDialog()
+                .then((isConfirmed) => {
+                        if (isConfirmed) {
+                            $.ajax({
+                                type: "DELETE",
+                                url: page.urls.deleteCartDetail + id
+                            }).done(() => {
+                                page.elements.cartContainer.show();
+                                AppBase.SweetAlert.showSuccessAlert("Deleted");
+                                page.loadData.loadUserCart();
+                            })
+                        }
+                    }
+                )
+        }
 
 
-
-        page.commands.initSlider = ()=>{
-            (function($){
+        page.commands.initSlider = () => {
+            (function ($) {
                 console.log("slider")
                 // Slidder home 4
-                if($('#bxslider-home4').length >0){
+                if ($('#bxslider-home4').length > 0) {
                     var slider = $('#bxslider-home4').bxSlider({
                         nextText:'<i class="fa fa-angle-right"></i>',
                         prevText:'<i class="fa fa-angle-left"></i>',

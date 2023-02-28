@@ -1,7 +1,6 @@
 package com.huy.model.dto;
 
 import com.huy.model.ProdType;
-import com.huy.model.ProductAvatar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

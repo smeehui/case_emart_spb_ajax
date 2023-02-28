@@ -1,8 +1,6 @@
 package com.huy.model.enums;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lombok.*;
+import lombok.Getter;
 
 @Getter
 public enum ERole {
