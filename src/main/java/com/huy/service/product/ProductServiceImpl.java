@@ -72,10 +72,13 @@ public class ProductServiceImpl implements IProductService{
 
         uploadAndSaveProductImage(productCreateReqDTO, productAvatar);
 
+
+        productAvatarRepository.save(productAvatar);
         product.setProductAvatar(productAvatar);
 
-        product.setId(null);
-        productRepository.save(product);
+//        product.setId(null);
+
+        product = productRepository.save(product);
 
         return modelMapper.map(product, ProductCreateResDTO.class);
     }
@@ -121,7 +124,6 @@ public class ProductServiceImpl implements IProductService{
             productAvatar.setFileUrl(fileUrl);
             productAvatar.setFileFolder(UploadUtils.IMAGE_UPLOAD_FOLDER_PRODUCT);
             productAvatar.setCloudId(productAvatar.getFileFolder() + "/" + productAvatar.getId());
-            productAvatarRepository.save(productAvatar);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -180,7 +182,7 @@ public class ProductServiceImpl implements IProductService{
             ProductAvatar productAvatar = product.getProductAvatar();
             product.setDeleted(true);
             productAvatarRepository.deleteById(productAvatar.getId());
-            productRepository.save(product);
+            productRepository.delete(product);
             destroyProductImageOnCloud(product, productAvatar);
         } catch (Exception e) {
             e.printStackTrace();

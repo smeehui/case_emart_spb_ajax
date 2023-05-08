@@ -1138,3 +1138,7 @@ div.cart-collaterals ul.products li.product:hover .add_to_cart_button{background
     width: 650px;
     z-index: 10;
 }
+
+#imgPreview{
+    object-fit: cover;
+}

@@ -28,8 +28,11 @@ public class Product extends BaseEntity {
 
     private String description;
 
-    @OneToOne(mappedBy = "products")
+
+    @OneToOne
+    @JoinColumn(name = "product_avatar_id",referencedColumnName = "id")
     private ProductAvatar productAvatar;
+
 
 
 

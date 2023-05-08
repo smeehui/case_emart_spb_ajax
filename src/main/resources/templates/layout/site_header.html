@@ -9,16 +9,32 @@
                     <div class="user-menu">
                         <ul>
                             <li><a href="#"><i class="fa fa-user"></i> My Account</a></li>
-                            <li><a href="#"><i class="fa fa-heart"></i> Wishlist</a></li>
-                            <li><a href="cart.html"><i class="fa fa-user"></i> My Cart</a></li>
-                            <li><a href="checkout.html"><i class="fa fa-user"></i> Checkout</a></li>
-                            <li><a href="/login"><i class="fa fa-user"></i> Login</a></li>
+                            <li><a href="/checkout"><i class="fa fa-user"></i> Checkout</a></li>
+                            <li><a id="loginLink" href="/login"><i class="fa fa-user"></i> Login</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div> <!-- End header area -->
+    <script>
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+       window.onload = ()=>{
+           let cookie = getCookie("jwtToken");
+           let element = document.querySelector("#loginLink");
+           if (!!cookie && cookie.length > 0) {
+               element.setAttribute("href","/logout");
+               element.innerHTML = "<i class=\"fa fa-door-open\"></i> Log  out"
+           }else {
+               element.setAttribute("href","/login");
+               element.innerHTML = "<i class=\"fa fa-user\"></i> Log in"
+           }
+       }
+    </script>
 </th:block>
 
 <th:block th:fragment="site_brand">

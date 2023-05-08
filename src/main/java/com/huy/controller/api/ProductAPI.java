@@ -47,6 +47,8 @@ public class ProductAPI {
 
     @Autowired
     ModelMapper modelMapper;
+
+
     @Autowired
     private ProdCategoryRepository prodCategoryRepository;
 
@@ -76,7 +78,6 @@ public class ProductAPI {
     @GetMapping("/best_sellers")
     public ResponseEntity<?> getBestSellerProduct() {
         ProdType prodType = productTypeService.findByName(EProdType.BEST_SELLER);
-//        ProdType prodType2 = productTypeService.findByName("BEST_SELLER");
         List<ProductResponseDTO> productResponseDTOS =
                 productService.findAllByProductTypeAndDeletedIsFalse(prodType)
                         .stream()
